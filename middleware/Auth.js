@@ -10,17 +10,11 @@ export const auth = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.SECRET_TOKEN);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     console.log(decoded);
 
-    if (req.user.role === "admin") {
-      next();
-    } else {
-      return res
-        .status(403)
-        .json({ message: "Access denied. you have no permission" });
-    }
+    next();
   } catch (error) {
     console.log(error);
     res.status(401).json({ error: "Unauthorized - Invalid token" });

@@ -19,6 +19,27 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// Get one User
+
+export const getOneUser = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const user = await User.findOne({
+      _id: userId,
+    });
+
+    if (user) {
+      res.status(200).json(user);
+    } else {
+      res.status(404).json({ error: "User not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 // Register
 export const resgister = async (req, res) => {
   const { firstName, lastName, role, email, password } = req.body;
@@ -75,6 +96,11 @@ export const resgister = async (req, res) => {
     fs.unlinkSync(path);
     return res.status(500).json({ error: "Internal Server Error" });
   }
+};
+
+// Get user by token info after refreshing the page in frontend
+export const loggedInUser = (req, res) => {
+  return res.json({ user: req.user }).status(200);
 };
 
 // login
@@ -172,5 +198,99 @@ export const addUser = async (req, res) => {
     const path = `public/images/${req.file.filename}`;
     fs.unlinkSync(path);
     return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Update the user
+export const updateUser = async (req, res) => {
+  const id = req.params.id;
+  const {
+    firstName,
+    lastName,
+    role,
+    email,
+    checkPassword,
+    newPassword,
+    password,
+  } = req.body;
+
+  try {
+    const existingUser = await User.findById(id);
+
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (checkPassword) {
+      const isPasswordValid = await bcrypt.compare(
+        checkPassword,
+        existingUser.password
+      );
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Old password is incorrect" });
+      }
+    }
+
+    // Update user fields
+    if (firstName) existingUser.firstName = firstName;
+    if (lastName) existingUser.lastName = lastName;
+    if (role) existingUser.role = role;
+    if (email) existingUser.email = email;
+    if (newPassword) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      existingUser.password = hashedPassword;
+    }
+    const oldImagePath = `public/images/${existingUser.image}`;
+
+    if (req.file) {
+      existingUser.image = req.file.filename;
+
+      fs.unlinkSync(oldImagePath, (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: `error deleting the old image` });
+        }
+      });
+    }
+
+    await existingUser.save();
+    return res.status(200).json(existingUser);
+  } catch (error) {
+    console.error(error);
+    const imagePath = `public/images/${req.file.filename}`;
+    fs.unlinkSync(imagePath);
+    return res.status(500).json({ error: "Internal Server Error", msg: error });
+  }
+};
+
+// Delete an user
+export const deleteUser = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const existingUser = await User.findById(id);
+
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const imagePath = `public/images/${existingUser.image}`;
+    fs.unlinkSync(imagePath, (err) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ error: "Error deleting the user's image" });
+      }
+    });
+
+    await User.deleteOne({ _id: id });
+
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

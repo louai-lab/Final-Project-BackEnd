@@ -17,6 +17,70 @@ export const getAllTeam = async (req, res) => {
 };
 
 // Add a Team
+// export const addTeam = async (req, res) => {
+//   const { name, playersIds } = req.body;
+//   let players;
+
+//   try {
+//     if (!name) {
+//       const path = `public/images/${req.file.filename}`;
+//       fs.unlinkSync(path);
+//       return res.status(400).json({ error: "All fields are required" });
+//     }
+
+//     if (playersIds) {
+//       players = await Player.find({
+//         _id: { $in: playersIds.map((id) => new ObjectId(id)) },
+//       });
+
+//       const playersWithTeams = players.filter((player) => player.team !== null);
+
+//       console.log("Players with Teams:", playersWithTeams);
+
+//       if (playersWithTeams.length > 0) {
+//         const path = `public/images/${req.file.filename}`;
+//         fs.unlinkSync(path);
+//         return res.status(400).json({
+//           error: "One or more players are already associated with another team",
+//         });
+//       }
+//     }
+
+//     if (!req.file) {
+//       return res.status(400).json({ error: "upload an image" });
+//     }
+
+//     const image = req.file.filename;
+
+//     const newTeam = new Team({
+//       name: req.body.name,
+//       image: image,
+//       players: players,
+//     });
+
+//     if (players) {
+//       players.forEach((player) => {
+//         player.team = newTeam._id;
+//       });
+//     }
+
+//     await Promise.all([
+//       newTeam.save(),
+//       ...(players || []).map((player) => player.save()),
+//     ]);
+
+//     return res
+//       .status(201)
+//       .json({ message: "Team added successfully", team: newTeam });
+//   } catch (error) {
+//     const path = `public/images/${req.file.filename}`;
+//     fs.unlinkSync(path);
+//     console.log(error);
+//     return res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
+// Add a Team
 export const addTeam = async (req, res) => {
   const { name, playersIds } = req.body;
   let players;
@@ -29,12 +93,11 @@ export const addTeam = async (req, res) => {
     }
 
     if (playersIds) {
-      players = await Player.find({
+      // Check if any of the players are already associated with a team
+      const playersWithTeams = await Player.find({
         _id: { $in: playersIds.map((id) => new ObjectId(id)) },
+        team: { $ne: null }, // Check players with a team association
       });
-
-      // Check if any of the players are already associated with another team
-      const playersWithTeams = players.filter((player) => player.team !== null);
 
       if (playersWithTeams.length > 0) {
         const path = `public/images/${req.file.filename}`;
@@ -43,10 +106,15 @@ export const addTeam = async (req, res) => {
           error: "One or more players are already associated with another team",
         });
       }
+
+      // Fetch all players, including those without a team association
+      players = await Player.find({
+        _id: { $in: playersIds.map((id) => new ObjectId(id)) },
+      });
     }
 
     if (!req.file) {
-      return res.status(400).json({ error: "upload an image" });
+      return res.status(400).json({ error: "Upload an image" });
     }
 
     const image = req.file.filename;
@@ -57,10 +125,12 @@ export const addTeam = async (req, res) => {
       players: players,
     });
 
-    // Set the team field for each player
+    // Set the team field for each player, only for players without a team association
     if (players) {
       players.forEach((player) => {
-        player.team = newTeam._id;
+        if (!player.team) {
+          player.team = newTeam._id;
+        }
       });
     }
 
@@ -80,6 +150,10 @@ export const addTeam = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
+
+
 
 // update the team
 export const updateTeam = async (req, res) => {
@@ -150,35 +224,6 @@ export const deleteTeam = async (req, res) => {
 };
 
 // Delete Player from Team
-// export const deletePlayerFromTeam = async (req, res) => {
-//   const idTeam = req.params.idTeam;
-//   const idPlayer = req.params.idPlayer;
-
-//   try {
-//     const existingTeam = await Team.findById(idTeam);
-
-//     if (!existingTeam) {
-//       return res.status(404).json({ error: "Team not found" });
-//     }
-
-//     existingTeam.players = existingTeam.players.filter(
-//       (player) => player._id.toString() !== idPlayer
-//     );
-
-//     const updatedTeam = await existingTeam.save();
-
-//     if (updatedTeam) {
-//       return res.status(200).json({ message: "Player removed successfully" });
-//     } else {
-//       return res.status(404).json({ error: "Player not found or not removed" });
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
-// Delete Player from Team
 export const deletePlayerFromTeam = async (req, res) => {
   const idTeam = req.params.idTeam;
   const idPlayer = req.params.idPlayer;
@@ -210,12 +255,10 @@ export const deletePlayerFromTeam = async (req, res) => {
     // Save the updated team
     const updatedTeam = await existingTeam.save();
 
-    return res
-      .status(200)
-      .json({
-        message: "Player removed successfully",
-        updatedTeam: updatedTeam,
-      });
+    return res.status(200).json({
+      message: "Player removed successfully",
+      updatedTeam: updatedTeam,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -268,5 +311,3 @@ export const addPlayersToTeam = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-// note : when create a team with players , or when adding player to the team , to check if this player found in another team or not

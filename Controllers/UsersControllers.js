@@ -123,7 +123,14 @@ export const login = async (req, res) => {
 
     if (passwordMatch) {
       const token = jwt.sign(
-        { userId: user._id, role: user.role },
+        {
+          userId: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          email: user.email,
+          image: user.image,
+        },
         process.env.JWT_SECRET,
         {
           expiresIn: "24h",
@@ -137,7 +144,7 @@ export const login = async (req, res) => {
           sameSite: "None",
         })
         .status(200)
-        .json({ user, token });
+        .json(user);
     } else {
       return res.status(401).json({ error: "Password is incorrect" });
     }

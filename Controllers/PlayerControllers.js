@@ -4,7 +4,7 @@ import Player from "../Models/PlayerModel.js";
 
 export const getAllPlayers = async (req, res) => {
   try {
-    const players = await Player.find();
+    const players = await Player.find().populate("team", "name image").exec();
     res.status(201).json(players);
   } catch (error) {
     console.error(error);
@@ -64,13 +64,12 @@ export const deletePlayer = async (req, res) => {
   const id = req.params.id;
 
   try {
-    
     const existingPlayer = await Player.findById(id);
 
     if (!existingPlayer) {
       return res.status(404).json({ error: "Player not found" });
     }
-    
+
     await Player.deleteOne({ _id: id });
 
     res.status(200).json({ message: "Player deleted successfully" });

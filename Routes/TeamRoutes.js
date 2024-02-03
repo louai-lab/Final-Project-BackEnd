@@ -6,7 +6,7 @@ import {
   updateTeam,
   deleteTeam,
   deletePlayerFromTeam,
-  addPlayerToTeam,
+  addPlayersToTeam,
 } from "../Controllers/TeamControllers.js";
 
 const teamRoutes = express.Router();
@@ -20,6 +20,6 @@ teamRoutes.delete(
   "/deletePlayerFromTeam/:idTeam/:idPlayer",
   deletePlayerFromTeam
 );
-teamRoutes.post('/addPlayerToTeam',addPlayerToTeam)
+teamRoutes.post('/addPlayersToTeam',addPlayersToTeam)
 
 export default teamRoutes;

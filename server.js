@@ -6,6 +6,7 @@ import connect from "./config/config.js";
 import userRoutes from "./Routes/UserRoutes.js";
 import playerRoutes from "./Routes/PlayerRoutes.js";
 import teamRoutes from "./Routes/TeamRoutes.js";
+import matchRoutes from "./Routes/MatchRoutes.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(cors(corsOption));
 app.use("/user", userRoutes);
 app.use('/player',playerRoutes)
 app.use('/team',teamRoutes)
+app.use('/match',matchRoutes)
 
 app.listen(PORT, () => {
   connect();

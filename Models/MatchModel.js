@@ -1,3 +1,4 @@
+import { text } from "express";
 import mongoose from "mongoose";
 
 const MatchSchema = new mongoose.Schema({
@@ -9,11 +10,23 @@ const MatchSchema = new mongoose.Schema({
     team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
     score: { type: Number, default: 0 },
   },
-  referee: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  referee: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  referee_report: { type: String },
+
   watcher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  details:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"MatchDetails"
+  },
+  watcher_report: { type: String },
+
   match_date: Date,
 });
 

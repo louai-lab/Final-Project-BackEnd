@@ -1,9 +1,28 @@
-import User from "../Models/UserModel.js";
-import Team from "../Models/TeamModel.js";
 import moment from "moment";
 import Match from "../Models/MatchModel.js";
+import MatchDetails from "../Models/MatchDetailsModel.js";
 
 // get all matches
+// export const getAllMatches = async (req, res) => {
+//   try {
+//     const matches = await Match.find()
+//       .populate("team_a.team", "name")
+//       .populate("team_b.team", "name")
+//       .populate("referee", "firstName lastName role")
+//       .populate("watcher", "firstName lastName role")
+//       .populate("details.type")
+//       .populate("details.team","name")
+//       .populate("details.player","name")
+//       .populate("details.minute")
+//       .exec();
+
+//     return res.status(200).json(matches);
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).send("Internal Server Error");
+//   }
+// };
+
 export const getAllMatches = async (req, res) => {
   try {
     const matches = await Match.find()
@@ -11,6 +30,40 @@ export const getAllMatches = async (req, res) => {
       .populate("team_b.team", "name")
       .populate("referee", "firstName lastName role")
       .populate("watcher", "firstName lastName role")
+      .populate({
+        path: "details",
+        populate: {
+          path: "details.team details.player",
+          select: "name",
+        },
+      })
+      .lean()
+      .exec();
+
+    return res.status(200).json(matches);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Get a Match
+export const getMatch = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const matches = await Match.findById(id)
+      .populate("team_a.team", "name")
+      .populate("team_b.team", "name")
+      .populate("referee", "firstName lastName role")
+      .populate("watcher", "firstName lastName role")
+      .populate({
+        path: "details",
+        populate: {
+          path: "details.team details.player",
+          select: "name",
+        },
+      })
+      .lean()
       .exec();
 
     return res.status(200).json(matches);

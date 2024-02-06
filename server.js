@@ -7,6 +7,7 @@ import userRoutes from "./Routes/UserRoutes.js";
 import playerRoutes from "./Routes/PlayerRoutes.js";
 import teamRoutes from "./Routes/TeamRoutes.js";
 import matchRoutes from "./Routes/MatchRoutes.js";
+import matchDetailsRoutes from "./Routes/MatchDetailsRoutes.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/user", userRoutes);
 app.use('/player',playerRoutes)
 app.use('/team',teamRoutes)
 app.use('/match',matchRoutes)
+app.use('/matchdetails',matchDetailsRoutes)
 
 app.listen(PORT, () => {
   connect();

@@ -17,70 +17,6 @@ export const getAllTeam = async (req, res) => {
 };
 
 // Add a Team
-// export const addTeam = async (req, res) => {
-//   const { name, playersIds } = req.body;
-//   let players;
-
-//   try {
-//     if (!name) {
-//       const path = `public/images/${req.file.filename}`;
-//       fs.unlinkSync(path);
-//       return res.status(400).json({ error: "All fields are required" });
-//     }
-
-//     if (playersIds) {
-//       players = await Player.find({
-//         _id: { $in: playersIds.map((id) => new ObjectId(id)) },
-//       });
-
-//       const playersWithTeams = players.filter((player) => player.team !== null);
-
-//       console.log("Players with Teams:", playersWithTeams);
-
-//       if (playersWithTeams.length > 0) {
-//         const path = `public/images/${req.file.filename}`;
-//         fs.unlinkSync(path);
-//         return res.status(400).json({
-//           error: "One or more players are already associated with another team",
-//         });
-//       }
-//     }
-
-//     if (!req.file) {
-//       return res.status(400).json({ error: "upload an image" });
-//     }
-
-//     const image = req.file.filename;
-
-//     const newTeam = new Team({
-//       name: req.body.name,
-//       image: image,
-//       players: players,
-//     });
-
-//     if (players) {
-//       players.forEach((player) => {
-//         player.team = newTeam._id;
-//       });
-//     }
-
-//     await Promise.all([
-//       newTeam.save(),
-//       ...(players || []).map((player) => player.save()),
-//     ]);
-
-//     return res
-//       .status(201)
-//       .json({ message: "Team added successfully", team: newTeam });
-//   } catch (error) {
-//     const path = `public/images/${req.file.filename}`;
-//     fs.unlinkSync(path);
-//     console.log(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
-// Add a Team
 export const addTeam = async (req, res) => {
   const { name, playersIds } = req.body;
   let players;
@@ -150,10 +86,6 @@ export const addTeam = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
-
-
 
 // update the team
 export const updateTeam = async (req, res) => {
@@ -229,14 +161,12 @@ export const deletePlayerFromTeam = async (req, res) => {
   const idPlayer = req.params.idPlayer;
 
   try {
-    // Find the team
     const existingTeam = await Team.findById(idTeam);
 
     if (!existingTeam) {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    // Find the player in the team
     const playerInTeamIndex = existingTeam.players.findIndex(
       (player) => player._id.toString() === idPlayer
     );
@@ -245,14 +175,11 @@ export const deletePlayerFromTeam = async (req, res) => {
       return res.status(404).json({ error: "Player not found in the team" });
     }
 
-    // Update the player's team field to null
     const playerData = existingTeam.players[playerInTeamIndex];
     await Player.findByIdAndUpdate(idPlayer, { $set: { team: null } });
 
-    // Remove the player from the team's players array
     existingTeam.players.splice(playerInTeamIndex, 1);
 
-    // Save the updated team
     const updatedTeam = await existingTeam.save();
 
     return res.status(200).json({
@@ -277,10 +204,8 @@ export const addPlayersToTeam = async (req, res) => {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    // Fetch players by their IDs
     const players = await Player.find({ _id: { $in: playerIds } });
 
-    // Check if any of the players are already associated with another team
     const playersWithTeams = await Player.find({
       _id: { $in: playerIds },
       team: { $ne: null },
@@ -292,15 +217,12 @@ export const addPlayersToTeam = async (req, res) => {
       });
     }
 
-    // Add players to the team
     team.players.push(...players);
 
-    // Set the team field for each player
     players.forEach((player) => {
       player.team = team._id;
     });
 
-    // Save the updated team and players
     await Promise.all([team.save(), ...players.map((player) => player.save())]);
 
     return res

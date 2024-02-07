@@ -73,10 +73,10 @@ export const getMatch = async (req, res) => {
   }
 };
 
-// create a Match
+// create a Match && create a MatchDetails and included in the match body
 export const createMatch = async (req, res) => {
   try {
-    const { team_a, team_b, referee, watcher, match_date } = req.body;
+    const { team_a, team_b, referee, watcher, match_date, details } = req.body;
 
     const formattedMatchDate = moment(match_date, "DD/MM/YYYY").toDate();
 
@@ -90,6 +90,15 @@ export const createMatch = async (req, res) => {
     });
 
     const savedMatch = await newMatch.save();
+
+    const newMatchDetails = new MatchDetails({
+      details,
+    });
+
+    const savedMatchDetails = await newMatchDetails.save();
+
+    savedMatch.details.push(savedMatchDetails._id);
+    await savedMatch.save();
 
     res.status(201).json(savedMatch);
   } catch (error) {

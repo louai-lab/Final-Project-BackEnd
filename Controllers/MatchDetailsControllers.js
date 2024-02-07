@@ -16,7 +16,7 @@ export const getAllMatchDetails = async (req, res) => {
   }
 };
 
-// create a matchDetails
+// create a matchDetails , it will be created when i create a Match
 export const createMatchDetails = async (req, res) => {
   try {
     const { details } = req.body;
@@ -30,7 +30,8 @@ export const createMatchDetails = async (req, res) => {
   }
 };
 
-// update a matchDetails , && add an object (new detail in the details array)
+// update a matchDetails , && add an object (new detail in the details array) , 
+// it is just pass the MatchDetails Id to add an object to array of details
 export const updateMatchDetails = async (req, res) => {
   const id = req.params.id;
 
@@ -52,14 +53,15 @@ export const updateMatchDetails = async (req, res) => {
   }
 };
 
-// update a matchDetails , && delete an object ( detail in the details array)
+// update a matchDetails , && delete an object ( detail in the details array) ,
+// it is just pass the MatchDetails Id , and also passing the exact id of the object that i want it to delete
 export const deleteObject = async (req, res) => {
   const id = req.params.id;
-  const matchId = req.params.matchId;
+  const matchDetailsId = req.params.matchId;
 
   try {
     const match = await MatchDetails.findByIdAndUpdate(
-      matchId,
+      matchDetailsId,
       { $pull: { details: { _id: id } } },
       { new: true }
     );

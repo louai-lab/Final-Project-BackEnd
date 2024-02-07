@@ -21,11 +21,13 @@ const MatchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  details:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"MatchDetails"
-  },
   watcher_report: { type: String },
+  details: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MatchDetails",
+    },
+  ],
 
   match_date: Date,
 });

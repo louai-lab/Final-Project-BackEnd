@@ -16,7 +16,7 @@ export const getAllMatchDetails = async (req, res) => {
   }
 };
 
-// create a matchDetails , it will be created when i create a Match
+// create a matchDetails , it will be created by default when i create a Match
 export const createMatchDetails = async (req, res) => {
   try {
     const { details } = req.body;
@@ -30,22 +30,67 @@ export const createMatchDetails = async (req, res) => {
   }
 };
 
-// update a matchDetails , && add an object (new detail in the details array) , 
-// it is just pass the MatchDetails Id to add an object to array of details
+// update a matchDetails , && add an object (new detail in the details array) ,
+// it is just pass the MatchDetails Id , and in the body the detail (goal , ...)
+// to add an object to array of details
+// export const updateMatchDetails = async (req, res) => {
+//   const id = req.params.id;
+
+//   const newDetailsObject = req.body;
+
+//   try {
+//     const updatedMatchDetails = await MatchDetails.findOneAndUpdate(
+//       { _id: id },
+//       { $push: { details: newDetailsObject } },
+//       { new: true }
+//     )
+//       .populate("details.team", "name")
+//       .populate("details.player", "name")
+//       .exec();
+
+//     return res.status(200).json(updatedMatchDetails);
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).send("Internal Server Error");
+//   }
+// };
+
 export const updateMatchDetails = async (req, res) => {
   const id = req.params.id;
 
-  const newDetailsObject = req.body;
+  const { type, team, minute, playerIn, playerOut } = req.body;
 
   try {
+    // Construct the details object based on the type
+    let newDetailsObject;
+
+    if (type === "substitution") {
+      newDetailsObject = {
+        type,
+        team,
+        minute,
+        playerIn: playerIn,
+        playerOut: playerOut,
+      };
+    } else {
+      // For other types, use the existing structure with one player
+      newDetailsObject = {
+        type,
+        team,
+        minute,
+        playerIn: playerIn, // Assuming other types only need one player
+      };
+    }
+
     const updatedMatchDetails = await MatchDetails.findOneAndUpdate(
       { _id: id },
       { $push: { details: newDetailsObject } },
       { new: true }
     )
       .populate("details.team", "name")
-      .populate("details.player", "name")
+      .populate("details.playerIn details.playerOut", "name")
       .exec();
+
     return res.status(200).json(updatedMatchDetails);
   } catch (error) {
     console.error(error);
@@ -53,11 +98,12 @@ export const updateMatchDetails = async (req, res) => {
   }
 };
 
+
 // update a matchDetails , && delete an object ( detail in the details array) ,
 // it is just pass the MatchDetails Id , and also passing the exact id of the object that i want it to delete
 export const deleteObject = async (req, res) => {
   const id = req.params.id;
-  const matchDetailsId = req.params.matchId;
+  const matchDetailsId = req.params.matchDetailsId;
 
   try {
     const match = await MatchDetails.findByIdAndUpdate(

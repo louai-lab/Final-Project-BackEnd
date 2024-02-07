@@ -13,11 +13,17 @@ const MatchDetailsSchema = new mongoose.Schema({
         ref: "Team",
         required: true,
       },
-      player: {
+      playerIn: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",
         required: true,
       },
+
+      playerOut: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Player",
+      },
+
       minute: {
         type: Number,
         required: true,

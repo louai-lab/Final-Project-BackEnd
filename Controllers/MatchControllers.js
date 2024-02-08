@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import Match from "../Models/MatchModel.js";
 import MatchDetails from "../Models/MatchDetailsModel.js";
 
@@ -21,12 +21,11 @@ export const getAllMatches = async (req, res) => {
       .lean()
       .exec();
 
-      if (!matches) {
-        return res.status(404).json({ message: "No matches found" });
-      }
+    if (!matches) {
+      return res.status(404).json({ message: "No matches found" });
+    }
 
-
-      // Iterate through matches and calculate scores
+    // Iterate through matches and calculate scores
     matches.forEach((match) => {
       // Initialize scores
       let teamAScore = 0;
@@ -38,7 +37,8 @@ export const getAllMatches = async (req, res) => {
         match.details.forEach((detail) => {
           const goals = detail.details.filter((goal) => goal.type === "goal");
           goals.forEach((goal) => {
-            const scoringTeam = goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
+            const scoringTeam =
+              goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
             if (scoringTeam === "team_a") {
               teamAScore += 1;
             } else {
@@ -83,28 +83,27 @@ export const getMatch = async (req, res) => {
       return res.status(404).json({ message: "Match not found" });
     }
 
-     // Initialize scores
-     let teamAScore = 0;
-     let teamBScore = 0;
- 
-     // Iterate through details and calculate scores
-     match.details.forEach((detail) => {
-       const goals = detail.details.filter((goal) => goal.type === "goal");
-       goals.forEach((goal) => {
-         const scoringTeam = goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
-         if (scoringTeam === "team_a") {
-           teamAScore += 1;
-         } else {
-           teamBScore += 1;
-         }
-       });
-     });
- 
-     // Update the scores in the response
-     match.team_a.score = teamAScore;
-     match.team_b.score = teamBScore;
+    // Initialize scores
+    let teamAScore = 0;
+    let teamBScore = 0;
 
-    
+    // Iterate through details and calculate scores
+    match.details.forEach((detail) => {
+      const goals = detail.details.filter((goal) => goal.type === "goal");
+      goals.forEach((goal) => {
+        const scoringTeam =
+          goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
+        if (scoringTeam === "team_a") {
+          teamAScore += 1;
+        } else {
+          teamBScore += 1;
+        }
+      });
+    });
+
+    // Update the scores in the response
+    match.team_a.score = teamAScore;
+    match.team_b.score = teamBScore;
 
     return res.status(200).json(match);
   } catch (error) {
@@ -119,9 +118,22 @@ export const getMatch = async (req, res) => {
 // inside the array of details
 export const createMatch = async (req, res) => {
   try {
-    const { team_a, team_b, referee, watcher, match_date, details } = req.body;
+    const {
+      team_a,
+      team_b,
+      referee,
+      watcher,
+      details,
+      match_date,
+      match_time,
+      time_zone,
+    } = req.body;
 
-    const formattedMatchDate = moment(match_date, "DD/MM/YYYY").toDate();
+    const combinedDateTime = `${match_date} ${match_time}`;
+
+    const formattedMatchDateTime = moment
+      .tz(combinedDateTime, "DD/MM/YYYY h:mm A", time_zone)
+      .toDate();
 
     // Create a new match
     const newMatch = new Match({
@@ -129,7 +141,7 @@ export const createMatch = async (req, res) => {
       team_b,
       referee,
       watcher,
-      match_date: formattedMatchDate,
+      match_date: formattedMatchDateTime,
     });
 
     const savedMatch = await newMatch.save();
@@ -154,16 +166,27 @@ export const createMatch = async (req, res) => {
 export const updateMatch = async (req, res) => {
   const id = req.params.id;
   try {
-    const updatedData = req.body;
+    const { match_date, match_time, time_zone , ...otherUpdatedData } = req.body;
 
     const existingMatch = await Match.findById(id);
     if (!existingMatch) {
       return res.status(404).json({ message: "Match not found" });
     }
 
-    const updatedMatch = await Match.findByIdAndUpdate(id, updatedData, {
-      new: true,
-    });
+    // Update date and time separately
+    if (match_date) {
+      existingMatch.match_date = moment.tz(match_date, "DD/MM/YYYY").toDate();
+    }
+
+    if (match_time) {
+      // Assuming match_time is provided in a format like "6:00 PM"
+      existingMatch.match_date = moment.tz(`${match_date} ${match_time}`, "DD/MM/YYYY h:mm A").toDate();
+    }
+
+    // Update other fields
+    Object.assign(existingMatch, otherUpdatedData);
+
+    const updatedMatch = await existingMatch.save();
 
     return res.status(200).json(updatedMatch);
   } catch (error) {
@@ -171,6 +194,7 @@ export const updateMatch = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
+
 
 // Delete a Match
 export const deleteMatch = async (req, res) => {

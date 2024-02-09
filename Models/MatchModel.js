@@ -22,6 +22,20 @@ const MatchSchema = new mongoose.Schema({
     ref: "User",
   },
   watcher_report: { type: String },
+
+  linesman_one:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User",
+    required:true
+  },
+
+  linesman_two:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"User",
+    required:true
+  },
+
+
   details: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -5,7 +5,10 @@ import Team from "../Models/TeamModel.js";
 
 export const getAllPlayers = async (req, res) => {
   try {
-    const players = await Player.find().populate("team", "name image").exec();
+    const players = await Player.find()
+      .populate("team", "name image")
+      .sort({ createdAt: -1 })
+      .exec();
     res.status(201).json(players);
   } catch (error) {
     console.error(error);
@@ -14,6 +17,40 @@ export const getAllPlayers = async (req, res) => {
 };
 
 // Add a Player
+// export const addPlayer = async (req, res) => {
+//   const { name, position, team } = req.body;
+
+//   try {
+//     if (!name || !position) {
+//       return res.status(400).json({ error: "All fields are required" });
+//     }
+
+//     const newPlayerData = {
+//       name,
+//       position,
+//     };
+
+//     if (team) {
+//       newPlayerData.team = team;
+//     }
+
+//     const newPlayer = await Player.create(newPlayerData);
+
+//     if (team) {
+//       const existingTeam = await Team.findById(team);
+//       if (existingTeam) {
+//         existingTeam.players.push(newPlayer._id);
+//         await existingTeam.save();
+//       }
+//     }
+
+//     res.status(201).json(newPlayer);
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 export const addPlayer = async (req, res) => {
   const { name, position, team } = req.body;
 
@@ -33,7 +70,6 @@ export const addPlayer = async (req, res) => {
 
     const newPlayer = await Player.create(newPlayerData);
 
-    // If team is provided, update the team's players array
     if (team) {
       const existingTeam = await Team.findById(team);
       if (existingTeam) {
@@ -42,48 +78,19 @@ export const addPlayer = async (req, res) => {
       }
     }
 
-    res.status(201).json(newPlayer);
+    // Populate team information in the response
+    const populatedPlayer = await Player.findById(newPlayer._id)
+      .populate("team", "_id name image")
+      .exec();
+
+    res.status(201).json(populatedPlayer);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-// Update a player
-
-// export const updatePlayer = async (req, res) => {
-//   const id = req.params.id;
-
-//   const { name, position, team } = req.body;
-
-//   try {
-//     const existingPlayer = await Player.findById(id);
-
-//     if (!existingPlayer) {
-//       return res.status(404).json({ error: "Player not found" });
-//     }
-
-//     if (name) existingPlayer.name = name;
-//     if (position) existingPlayer.position = position;
-
-//     if (team !== undefined) {
-
-//       const isValidTeam = await Team.exists({ _id: team });
-//       if (isValidTeam) {
-//         existingPlayer.team = team;
-//       } else {
-//         return res.status(400).json({ error: "Invalid team ID" });
-//       }
-//     }
-
-//     await existingPlayer.save();
-//     return res.status(200).json(existingPlayer);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ error: "Internal Server Error", msg: error });
-//   }
-// };
-
+// update a player with team population
 export const updatePlayer = async (req, res) => {
   const id = req.params.id;
 
@@ -96,21 +103,14 @@ export const updatePlayer = async (req, res) => {
       return res.status(404).json({ error: "Player not found" });
     }
 
-    // Get the current team ID of the player
     const currentTeam = existingPlayer.team;
 
-    // Update user fields
     if (name) existingPlayer.name = name;
     if (position) existingPlayer.position = position;
 
-    // Update team field if provided
     if (team !== undefined) {
-      // Check if the provided team ID is valid
-      const isValidTeam = await Team.exists({ _id: team });
-      if (isValidTeam) {
-        existingPlayer.team = team;
-
-        // If the player had a previous team, remove the player from its players array
+      if (team === null || team === "") {
+        // Handle the case where the player is removed from the team
         if (currentTeam) {
           const previousTeam = await Team.findById(currentTeam);
           if (previousTeam) {
@@ -120,20 +120,41 @@ export const updatePlayer = async (req, res) => {
             await previousTeam.save();
           }
         }
-
-        // Add the player to the new team's players array
-        const newTeam = await Team.findById(team);
-        if (newTeam) {
-          newTeam.players.push(existingPlayer._id);
-          await newTeam.save();
-        }
+        existingPlayer.team = null;
       } else {
-        return res.status(400).json({ error: "Invalid team ID" });
+        const isValidTeam = await Team.exists({ _id: team });
+        if (isValidTeam) {
+          existingPlayer.team = team;
+
+          if (currentTeam) {
+            const previousTeam = await Team.findById(currentTeam);
+            if (previousTeam) {
+              previousTeam.players = previousTeam.players.filter(
+                (player) => player.toString() !== id
+              );
+              await previousTeam.save();
+            }
+          }
+
+          const newTeam = await Team.findById(team);
+          if (newTeam) {
+            newTeam.players.push(existingPlayer._id);
+            await newTeam.save();
+          }
+        } else {
+          return res.status(400).json({ error: "Invalid team ID" });
+        }
       }
     }
 
     await existingPlayer.save();
-    return res.status(200).json(existingPlayer);
+
+    // Populate team information
+    const updatedPlayer = await Player.findById(id)
+      .populate("team", "_id name image")
+      .exec();
+
+    return res.status(200).json(updatedPlayer);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal Server Error", msg: error });

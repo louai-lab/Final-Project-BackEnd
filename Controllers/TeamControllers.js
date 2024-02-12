@@ -16,6 +16,26 @@ export const getAllTeam = async (req, res) => {
   }
 };
 
+//Get one Team
+export const getOneTeam = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const team = await Team.findById(id)
+      .populate("players", "name position team")
+      .exec();
+
+    if (team) {
+      res.status(200).json(team);
+    } else {
+      res.status(404).json({ error: "Team not found" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 // Add a Team
 export const addTeam = async (req, res) => {
   const { name, playersIds } = req.body;

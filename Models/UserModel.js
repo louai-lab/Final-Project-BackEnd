@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["admin", "referee", "watcher" ,"linesman"],
+      enum: ["admin", "referee", "watcher", "linesman"],
     },
     email: {
       type: String,
@@ -36,12 +36,15 @@ const UserSchema = new mongoose.Schema(
       minlengthL: 8,
     },
     image: { type: String },
+    createdAt: { type: Date, default: Date.now },
   },
   {
     timestamps: true,
   }
 );
 
-const User = mongoose.model("User" , UserSchema)
+UserSchema.index({createdAt:-1})
 
-export default User
+const User = mongoose.model("User", UserSchema);
+
+export default User;

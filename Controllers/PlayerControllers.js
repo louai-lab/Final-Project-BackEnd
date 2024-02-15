@@ -16,41 +16,23 @@ export const getAllPlayers = async (req, res) => {
   }
 };
 
-// Add a Player
-// export const addPlayer = async (req, res) => {
-//   const { name, position, team } = req.body;
+// Get All Players without a Team
+export const getPlayersWithoutTeam = async (req, res) => {
+  try {
+    const playersWithoutTeam = await Player.find({ team: null })
+      .sort({ createdAt: -1 })
+      .exec();
 
-//   try {
-//     if (!name || !position) {
-//       return res.status(400).json({ error: "All fields are required" });
-//     }
+    res.status(201).json(playersWithoutTeam);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
-//     const newPlayerData = {
-//       name,
-//       position,
-//     };
 
-//     if (team) {
-//       newPlayerData.team = team;
-//     }
 
-//     const newPlayer = await Player.create(newPlayerData);
-
-//     if (team) {
-//       const existingTeam = await Team.findById(team);
-//       if (existingTeam) {
-//         existingTeam.players.push(newPlayer._id);
-//         await existingTeam.save();
-//       }
-//     }
-
-//     res.status(201).json(newPlayer);
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
+// Add A Player
 export const addPlayer = async (req, res) => {
   const { name, position, team } = req.body;
 

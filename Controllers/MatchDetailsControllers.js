@@ -6,7 +6,9 @@ export const getAllMatchDetails = async (req, res) => {
   try {
     const matcheDetails = await MatchDetails.find()
       .populate("details.team", "name")
-      .populate("details.player", "name")
+      // .populate("details.player", "name")
+      .populate("details.playerIn", "name")  
+      .populate("details.playerOut", "name")
       .exec();
 
     return res.status(200).json(matcheDetails);

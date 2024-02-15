@@ -8,6 +8,7 @@ export const getAllTeam = async (req, res) => {
   try {
     const teams = await Team.find()
       .populate("players", "name position team")
+      .sort({ createdAt: -1 })
       .exec();
     res.status(201).json(teams);
   } catch (error) {
@@ -36,7 +37,75 @@ export const getOneTeam = async (req, res) => {
   }
 };
 
+
 // Add a Team
+// export const addTeam = async (req, res) => {
+//   const { name, playersIds } = req.body;
+//   let players;
+
+//   try {
+//     if (!name) {
+//       const path = `public/images/${req.file.filename}`;
+//       fs.unlinkSync(path);
+//       return res
+//         .status(400)
+//         .json({ error: "Name and player IDs are required" });
+//     }
+
+//     if (!Array.isArray(playersIds)) {
+//       return res.status(400).json({ error: "Invalid format for playersIds" });
+//     }
+
+//     const ids = playersIds.map((player) => {
+//       return player._id;
+//     });
+
+    
+//     players = await Player.find({
+//       _id: { $in: ids.map((id) => new ObjectId(id)) },
+//     });
+
+//     if (players.length !== playersIds.length) {
+//       const path = `public/images/${req.file.filename}`;
+//       fs.unlinkSync(path);
+//       return res.status(400).json({ error: "Invalid player IDs" });
+//     }
+
+//     if (!req.file) {
+//       return res.status(400).json({ error: "Upload an image" });
+//     }
+
+//     const image = req.file.filename;
+
+//     const newTeam = new Team({
+//       name: req.body.name,
+//       image: image,
+//       players: playersIds,
+//     });
+
+//     players.forEach((player) => {
+//       if (!player.team) {
+//         player.team = newTeam._id;
+//       }
+//     });
+
+//     await Promise.all([
+//       newTeam.save(),
+//       ...(players || []).map((player) => player.save()),
+//     ]);
+
+//     return res
+//       .status(201)
+//       .json({ message: "Team added successfully", team: newTeam });
+//   } catch (error) {
+//     const path = `public/images/${req.file.filename}`;
+//     fs.unlinkSync(path);
+//     console.log(error);
+//     return res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
+
 export const addTeam = async (req, res) => {
   const { name, playersIds } = req.body;
   let players;
@@ -45,28 +114,26 @@ export const addTeam = async (req, res) => {
     if (!name) {
       const path = `public/images/${req.file.filename}`;
       fs.unlinkSync(path);
-      return res.status(400).json({ error: "All fields are required" });
+      return res
+        .status(400)
+        .json({ error: "Name is required" });
     }
 
-    if (playersIds) {
-      // Check if any of the players are already associated with a team
-      const playersWithTeams = await Player.find({
-        _id: { $in: playersIds.map((id) => new ObjectId(id)) },
-        team: { $ne: null }, // Check players with a team association
+    // If playersIds is not provided or is an empty array, set players to an empty array
+    if (!playersIds || !Array.isArray(playersIds)) {
+      players = [];
+    } else {
+      const ids = playersIds.map((player) => player._id);
+  
+      players = await Player.find({
+        _id: { $in: ids.map((id) => new ObjectId(id)) },
       });
-
-      if (playersWithTeams.length > 0) {
+  
+      if (players.length !== playersIds.length) {
         const path = `public/images/${req.file.filename}`;
         fs.unlinkSync(path);
-        return res.status(400).json({
-          error: "One or more players are already associated with another team",
-        });
+        return res.status(400).json({ error: "Invalid player IDs" });
       }
-
-      // Fetch all players, including those without a team association
-      players = await Player.find({
-        _id: { $in: playersIds.map((id) => new ObjectId(id)) },
-      });
     }
 
     if (!req.file) {
@@ -78,19 +145,15 @@ export const addTeam = async (req, res) => {
     const newTeam = new Team({
       name: req.body.name,
       image: image,
-      players: players,
+      players: playersIds,
     });
 
-    // Set the team field for each player, only for players without a team association
-    if (players) {
-      players.forEach((player) => {
-        if (!player.team) {
-          player.team = newTeam._id;
-        }
-      });
-    }
+    players.forEach((player) => {
+      if (!player.team) {
+        player.team = newTeam._id;
+      }
+    });
 
-    // Save the new team and updated players
     await Promise.all([
       newTeam.save(),
       ...(players || []).map((player) => player.save()),
@@ -98,7 +161,7 @@ export const addTeam = async (req, res) => {
 
     return res
       .status(201)
-      .json({ message: "Team added successfully", team: newTeam });
+      .json(newTeam);
   } catch (error) {
     const path = `public/images/${req.file.filename}`;
     fs.unlinkSync(path);
@@ -106,6 +169,10 @@ export const addTeam = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
+
+
 
 // update the team
 export const updateTeam = async (req, res) => {
@@ -146,26 +213,39 @@ export const updateTeam = async (req, res) => {
   }
 };
 
-// delete a team
 export const deleteTeam = async (req, res) => {
   const id = req.params.id;
 
   try {
+    // Find the team to be deleted
     const existingTeam = await Team.findById(id);
 
     if (!existingTeam) {
       return res.status(404).json({ error: "Team not found" });
     }
 
+    // Get the players associated with the team
+    const playersToUpdate = await Player.find({ team: id });
+
+    // Update each player's team to null
+    await Promise.all(
+      playersToUpdate.map(async (player) => {
+        player.team = null;
+        await player.save();
+      })
+    );
+
+    // Delete the team's image
     const imagePath = `public/images/${existingTeam.image}`;
     fs.unlinkSync(imagePath, (err) => {
       if (err) {
         return res
           .status(500)
-          .json({ error: "Error deleting the user's image" });
+          .json({ error: "Error deleting the team's image" });
       }
     });
 
+    // Delete the team
     await Team.deleteOne({ _id: id });
 
     return res.status(200).json({ message: "Team deleted successfully" });

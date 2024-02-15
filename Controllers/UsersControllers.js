@@ -9,7 +9,7 @@ dotenv.config();
 
 // get all users
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = async (  req, res) => {
   try {
     const users = await User.find().sort({createdAt:-1});
     res.status(201).json(users);

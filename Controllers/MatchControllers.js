@@ -15,7 +15,6 @@ export const getAllMatches = async (req, res) => {
       .populate({
         path: "details",
         populate: {
-          // path: "details.team details.player",
           path: "details.team details.playerIn details.playerOut",
           select: "name",
         },
@@ -33,20 +32,21 @@ export const getAllMatches = async (req, res) => {
       let teamAScore = 0;
       let teamBScore = 0;
 
-      // Check if match.details is an array
-      if (Array.isArray(match.details)) {
+        // Check if match.details is an object
+      if (match.details && match.details.details) {
+        const events = match.details.details;
+
         // Iterate through details and calculate scores
-        match.details.forEach((detail) => {
-          const goals = detail.details.filter((goal) => goal.type === "goal");
-          goals.forEach((goal) => {
+        events.forEach((event) => {
+          if (event.type === "goal" && event.team) {
             const scoringTeam =
-              goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
+              event.team.name === match.team_a.team.name ? "team_a" : "team_b";
             if (scoringTeam === "team_a") {
               teamAScore += 1;
             } else {
               teamBScore += 1;
             }
-          });
+          }
         });
       }
 
@@ -61,13 +61,12 @@ export const getAllMatches = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
-
 
 // Get All Matches bt a specific watcher
 export const getAllMatchesByWatcher = async (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
   try {
-    const matches = await Match.find({watcher : id})
+    const matches = await Match.find({ watcher: id })
       .populate("team_a.team", "name")
       .populate("team_b.team", "name")
       .populate("referee", "firstName lastName role")
@@ -95,20 +94,21 @@ export const getAllMatchesByWatcher = async (req, res) => {
       let teamAScore = 0;
       let teamBScore = 0;
 
-      // Check if match.details is an array
-      if (Array.isArray(match.details)) {
+       // Check if match.details is an object
+       if (match.details && match.details.details) {
+        const events = match.details.details;
+
         // Iterate through details and calculate scores
-        match.details.forEach((detail) => {
-          const goals = detail.details.filter((goal) => goal.type === "goal");
-          goals.forEach((goal) => {
+        events.forEach((event) => {
+          if (event.type === "goal" && event.team) {
             const scoringTeam =
-              goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
+              event.team.name === match.team_a.team.name ? "team_a" : "team_b";
             if (scoringTeam === "team_a") {
               teamAScore += 1;
             } else {
               teamBScore += 1;
             }
-          });
+          }
         });
       }
 
@@ -124,12 +124,11 @@ export const getAllMatchesByWatcher = async (req, res) => {
   }
 };
 
-
-// Get All Matches bt a specific watcher
+// Get All Matches bt a specific referee
 export const getAllMatchesByReferee = async (req, res) => {
-  const id = req.params.id
+  const id = req.params.id;
   try {
-    const matches = await Match.find({referee : id})
+    const matches = await Match.find({ referee: id })
       .populate("team_a.team", "name")
       .populate("team_b.team", "name")
       .populate("referee", "firstName lastName role")
@@ -157,20 +156,21 @@ export const getAllMatchesByReferee = async (req, res) => {
       let teamAScore = 0;
       let teamBScore = 0;
 
-      // Check if match.details is an array
-      if (Array.isArray(match.details)) {
+      // Check if match.details is an object
+      if (match.details && match.details.details) {
+        const events = match.details.details;
+
         // Iterate through details and calculate scores
-        match.details.forEach((detail) => {
-          const goals = detail.details.filter((goal) => goal.type === "goal");
-          goals.forEach((goal) => {
+        events.forEach((event) => {
+          if (event.type === "goal" && event.team) {
             const scoringTeam =
-              goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
+              event.team.name === match.team_a.team.name ? "team_a" : "team_b";
             if (scoringTeam === "team_a") {
               teamAScore += 1;
             } else {
               teamBScore += 1;
             }
-          });
+          }
         });
       }
 
@@ -185,9 +185,6 @@ export const getAllMatchesByReferee = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
-
-
-
 
 // Get a Match
 export const getMatch = async (req, res) => {
@@ -218,19 +215,23 @@ export const getMatch = async (req, res) => {
     let teamAScore = 0;
     let teamBScore = 0;
 
-    // Iterate through details and calculate scores
-    match.details.forEach((detail) => {
-      const goals = detail.details.filter((goal) => goal.type === "goal");
-      goals.forEach((goal) => {
-        const scoringTeam =
-          goal.team.name === match.team_a.team.name ? "team_a" : "team_b";
-        if (scoringTeam === "team_a") {
-          teamAScore += 1;
-        } else {
-          teamBScore += 1;
-        }
-      });
-    });
+      // Check if match.details is an object
+      if (match.details && match.details.details) {
+        const events = match.details.details;
+
+        // Iterate through details and calculate scores
+        events.forEach((event) => {
+          if (event.type === "goal" && event.team) {
+            const scoringTeam =
+              event.team.name === match.team_a.team.name ? "team_a" : "team_b";
+            if (scoringTeam === "team_a") {
+              teamAScore += 1;
+            } else {
+              teamBScore += 1;
+            }
+          }
+        });
+      }
 
     // Update the scores in the response
     match.team_a.score = teamAScore;
@@ -250,6 +251,9 @@ export const getMatch = async (req, res) => {
 export const createMatch = async (req, res) => {
   try {
     const {
+      title,
+      season,
+      pitch,
       team_a,
       team_b,
       referee,
@@ -270,6 +274,9 @@ export const createMatch = async (req, res) => {
 
     // Create a new match
     const newMatch = new Match({
+      title,
+      season,
+      pitch,
       team_a,
       team_b,
       referee,
@@ -287,10 +294,29 @@ export const createMatch = async (req, res) => {
 
     const savedMatchDetails = await newMatchDetails.save();
 
-    savedMatch.details.push(savedMatchDetails._id);
+    savedMatch.details = savedMatchDetails._id;
     await savedMatch.save();
 
-    res.status(201).json(savedMatch);
+    // res.status(201).json(savedMatch);
+
+    // Populate multiple fields
+    const populatedMatch = await Match.findById(savedMatch._id)
+      .populate("team_a.team", "name")
+      .populate("team_b.team", "name")
+      .populate("referee", "firstName lastName role")
+      .populate("watcher", "firstName lastName role")
+      .populate("linesman_one", "firstName lastName role")
+      .populate("linesman_two", "firstName lastName role")
+      .populate({
+        path: "details",
+        populate: {
+          path: "details.team details.playerIn details.playerOut",
+          select: "name",
+        },
+      })
+      .exec();
+
+    res.status(201).json(populatedMatch);
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");

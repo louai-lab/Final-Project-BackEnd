@@ -19,6 +19,42 @@ export const getAllUsers = async (  req, res) => {
   }
 };
 
+
+// get all users that role "referee"
+export const getAllReferees = async (  req, res) => {
+  try {
+    const referees = await User.find({role:"referee"}).sort({createdAt:-1});
+    res.status(201).json(referees);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// get all users that role "watcher"
+export const getAllWatchers = async (req, res) => {
+  try {
+    const watchers = await User.find({role:"watcher"}).sort({createdAt:-1});
+    res.status(201).json(watchers);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// get all users that role "linesman"
+export const getAllLinesman = async (req, res) => {
+  try {
+    const linesMan = await User.find({role:"linesman"}).sort({createdAt:-1});
+    res.status(201).json(linesMan);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
 // Get one User
 
 export const getOneUser = async (req, res) => {

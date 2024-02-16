@@ -35,35 +35,12 @@ export const createMatchDetails = async (req, res) => {
 // update a matchDetails , && add an object (new detail in the details array) ,
 // it is just pass the MatchDetails Id , and in the body the detail (goal , ...)
 // to add an object to array of details
-// export const updateMatchDetails = async (req, res) => {
-//   const id = req.params.id;
-
-//   const newDetailsObject = req.body;
-
-//   try {
-//     const updatedMatchDetails = await MatchDetails.findOneAndUpdate(
-//       { _id: id },
-//       { $push: { details: newDetailsObject } },
-//       { new: true }
-//     )
-//       .populate("details.team", "name")
-//       .populate("details.player", "name")
-//       .exec();
-
-//     return res.status(200).json(updatedMatchDetails);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).send("Internal Server Error");
-//   }
-// };
-
 export const updateMatchDetails = async (req, res) => {
   const id = req.params.id;
 
   const { type, team, minute, playerIn, playerOut } = req.body;
 
   try {
-    // Construct the details object based on the type
     let newDetailsObject;
 
     if (type === "substitution") {
@@ -75,12 +52,11 @@ export const updateMatchDetails = async (req, res) => {
         playerOut: playerOut,
       };
     } else {
-      // For other types, use the existing structure with one player
       newDetailsObject = {
         type,
         team,
         minute,
-        playerIn: playerIn, // Assuming other types only need one player
+        playerIn: playerIn,
       };
     }
 

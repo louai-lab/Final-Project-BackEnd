@@ -52,6 +52,10 @@ const MatchSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "MatchDetails",
     },
+    played: {
+      type: Boolean,
+      default: false,
+    },
 
     match_date: Date,
   },

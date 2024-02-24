@@ -30,6 +30,6 @@ userRoutes.delete("/delete/:id", upload.single("image"), deleteUser);
 userRoutes.post("/", upload.single("image"), resgister);
 userRoutes.get("/logged-in-user", auth, loggedInUser);
 userRoutes.post("/login", login);
-userRoutes.get("/logout", logout);
+userRoutes.post("/logout", logout);
 
 export default userRoutes;

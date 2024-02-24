@@ -1,5 +1,6 @@
 import express from "express";
 import MatchDetails from "../Models/MatchDetailsModel.js";
+import Match from "../Models/MatchModel.js";
 
 // get all matcheDetails
 export const getAllMatchDetails = async (req, res) => {
@@ -7,7 +8,7 @@ export const getAllMatchDetails = async (req, res) => {
     const matcheDetails = await MatchDetails.find()
       .populate("details.team", "name")
       // .populate("details.player", "name")
-      .populate("details.playerIn", "name")  
+      .populate("details.playerIn", "name")
       .populate("details.playerOut", "name")
       .exec();
 
@@ -19,11 +20,31 @@ export const getAllMatchDetails = async (req, res) => {
 };
 
 // create a matchDetails , it will be created by default when i create a Match
+// export const createMatchDetails = async (req, res) => {
+//   try {
+//     const { details } = req.body;
+
+//     const newMatchDetails = await MatchDetails.create({ details });
+
+//     return res.status(201).json(newMatchDetails);
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
 export const createMatchDetails = async (req, res) => {
   try {
     const { details } = req.body;
 
-    const newMatchDetails = await MatchDetails.create({ details });
+    const populatedDetails = await MatchDetails.populate(details, {
+      path: "team playerIn playerOut",
+      select: "name",
+    });
+
+    const newMatchDetails = await MatchDetails.create({
+      details: populatedDetails,
+    });
 
     return res.status(201).json(newMatchDetails);
   } catch (error) {
@@ -69,13 +90,24 @@ export const updateMatchDetails = async (req, res) => {
       .populate("details.playerIn details.playerOut", "name")
       .exec();
 
+    // Retrieve the associated match
+    const associatedMatch = await Match.findOne({
+      details: updatedMatchDetails._id,
+    });
+
+    // Update the played field based on details
+    if (updatedMatchDetails.details && updatedMatchDetails.details.length > 0) {
+      await Match.findByIdAndUpdate(associatedMatch._id, { played: true });
+    } else {
+      await Match.findByIdAndUpdate(associatedMatch._id, { played: false });
+    }
+
     return res.status(200).json(updatedMatchDetails);
   } catch (error) {
     console.error(error);
     return res.status(500).send("Internal Server Error");
   }
 };
-
 
 // update a matchDetails , && delete an object ( detail in the details array) ,
 // it is just pass the MatchDetails Id , and also passing the exact id of the object that i want it to delete

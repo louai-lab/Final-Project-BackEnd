@@ -26,12 +26,13 @@ const upload = multer({
       file.mimetype == "image/jpeg" ||
       file.mimetype == "image/jpg" ||
       file.mimetype == "image/png" ||
-      file.mimetype == "image/webp"
+      file.mimetype == "image/webp"||
+      file.mimetype == "image/svg+xml"
     ) {
       cb(null, true);
     } else {
       cb(null, false);
-      return cb(new Error("only jpg , jpeg and png allowed"));
+      return cb(new Error("only jpg , jpeg , svg and png allowed"));
     }
   },
 });

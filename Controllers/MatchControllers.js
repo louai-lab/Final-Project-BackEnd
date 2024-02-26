@@ -2,6 +2,7 @@ import moment from "moment-timezone";
 import Match from "../Models/MatchModel.js";
 import MatchDetails from "../Models/MatchDetailsModel.js";
 
+// Get All the Matches
 export const getAllMatches = async (req, res) => {
   try {
     const userId = req.user?.userId;
@@ -120,24 +121,37 @@ export const getAllMatches = async (req, res) => {
       if (match.details && match.details.details) {
         const events = match.details.details;
 
+        // events.forEach((event) => {
+        //   if (event.type === "goal" && event.team) {
+        //     const scoringTeam =
+        //       event.team.name === match.team_a.team.name ? "team_a" : "team_b";
+        //     if (scoringTeam === "team_a") {
+        //       teamAScore += 1;
+        //     } else {
+        //       teamBScore += 1;
+        //     }
+        //   }
+        // });
+
         events.forEach((event) => {
           if (event.type === "goal" && event.team) {
-            const scoringTeam =
-              event.team.name === match.team_a.team.name ? "team_a" : "team_b";
-            if (scoringTeam === "team_a") {
+            const scoringTeamId = event.team._id;
+        
+            if (scoringTeamId.equals(match.team_a.team._id)) {
               teamAScore += 1;
-            } else {
+            } else if (scoringTeamId.equals(match.team_b.team._id)) {
               teamBScore += 1;
             }
           }
         });
+        
       }
 
       match.team_a.score = teamAScore;
       match.team_b.score = teamBScore;
 
-      const currentTimestamp = new Date().getTime();
-      const matchDateTime = new Date(match.match_date + " UTC").getTime();
+      const currentTimestamp = moment().valueOf();
+      const matchDateTime = moment(match.match_date).valueOf();
 
       if (matchDateTime > currentTimestamp) {
         updatePromises.push(
@@ -274,19 +288,33 @@ export const getLastCreatedMatch = async (req, res) => {
       let teamAScore = 0;
       let teamBScore = 0;
 
+      // events.forEach((event) => {
+      //   if (event.type === "goal" && event.team) {
+      //     const scoringTeam =
+      //       event.team.name === lastMatch.team_a.team.name
+      //         ? "team_a"
+      //         : "team_b";
+      //     if (scoringTeam === "team_a") {
+      //       teamAScore += 1;
+      //     } else {
+      //       teamBScore += 1;
+      //     }
+      //   }
+      // });
+
       events.forEach((event) => {
         if (event.type === "goal" && event.team) {
-          const scoringTeam =
-            event.team.name === lastMatch.team_a.team.name
-              ? "team_a"
-              : "team_b";
-          if (scoringTeam === "team_a") {
+          const scoringTeamId = event.team._id;
+      
+          if (scoringTeamId.equals(lastMatch.team_a.team._id)) {
             teamAScore += 1;
-          } else {
+          } else if (scoringTeamId.equals(lastMatch.team_b.team._id)) {
             teamBScore += 1;
           }
         }
       });
+
+
 
       lastMatch.team_a.score = teamAScore;
       lastMatch.team_b.score = teamBScore;

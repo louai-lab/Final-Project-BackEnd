@@ -5,7 +5,7 @@ const matchDetailsRoutes = express.Router();
 
 matchDetailsRoutes.post("/", createMatchDetails);
 matchDetailsRoutes.get('/',getAllMatchDetails)
-matchDetailsRoutes.patch('/update/:id', updateMatchDetails)
+matchDetailsRoutes.patch('/addObject/:id', updateMatchDetails)
 matchDetailsRoutes.patch('/deleteObject/:matchDetailsId/:id', deleteObject)
 
 

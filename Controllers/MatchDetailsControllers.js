@@ -131,3 +131,66 @@ export const deleteObject = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
+
+// export const updateObject = async (req, res) => {
+//   const id = req.params.id;
+//   const matchDetailsId = req.params.matchDetailsId;
+//   const newData = req.body;
+
+//   try {
+//     const match = await MatchDetails.findOneAndUpdate(
+//       { _id: matchDetailsId, "details._id": id },
+//       {
+//         $set: {
+//           "details.$.type": newData.type,
+//           "details.$.team": newData.team,
+//           "details.$.playerIn": newData.playerIn,
+//           "details.$.playerOut": newData.playerOut,
+//           "details.$.minute": newData.minute,
+//         },
+//       },
+//       { new: true }
+//     );
+
+//     if (!match) {
+//       return res.status(404).json({ message: "Match not found" });
+//     }
+//     return res.status(200).json(match);
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).send("Internal Server Error");
+//   }
+// };
+
+export const updateObject = async (req, res) => {
+  const id = req.params.id;
+  const matchDetailsId = req.params.matchDetailsId;
+  const newData = req.body;
+
+  try {
+    const updateFields = {
+      "details.$.type": newData.type || "",
+      "details.$.team": newData.team || "",
+      "details.$.playerIn": newData.playerIn || "",
+      "details.$.playerOut": newData.playerOut || null,
+      "details.$.minute": newData.minute || "",
+    };
+
+    const match = await MatchDetails.findOneAndUpdate(
+      { _id: matchDetailsId, "details._id": id },
+      {
+        $set: updateFields,
+      },
+      { new: true }
+    );
+
+    if (!match) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    return res.status(200).json(match);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Internal Server Error");
+  }
+};

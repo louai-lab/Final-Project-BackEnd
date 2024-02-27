@@ -6,7 +6,7 @@ import MatchDetails from "../Models/MatchDetailsModel.js";
 export const getAllMatches = async (req, res) => {
   try {
     const userId = req.user?.userId;
-    // console.log(userId)
+    const teamId = req.query.teamId;
 
     let matches;
 
@@ -108,6 +108,16 @@ export const getAllMatches = async (req, res) => {
         .exec();
     }
 
+    // Apply additional filter based on teamId
+    if (teamId) {
+      matches = matches.filter((match) => {
+        return (
+          match.team_a.team._id.toString() === teamId ||
+          match.team_b.team._id.toString() === teamId
+        );
+      });
+    }
+
     if (!matches) {
       return res.status(404).json({ message: "No matches found" });
     }
@@ -121,22 +131,10 @@ export const getAllMatches = async (req, res) => {
       if (match.details && match.details.details) {
         const events = match.details.details;
 
-        // events.forEach((event) => {
-        //   if (event.type === "goal" && event.team) {
-        //     const scoringTeam =
-        //       event.team.name === match.team_a.team.name ? "team_a" : "team_b";
-        //     if (scoringTeam === "team_a") {
-        //       teamAScore += 1;
-        //     } else {
-        //       teamBScore += 1;
-        //     }
-        //   }
-        // });
-
         events.forEach((event) => {
           if (event.type === "goal" && event.team) {
             const scoringTeamId = event.team._id;
-        
+
             if (scoringTeamId.equals(match.team_a.team._id)) {
               teamAScore += 1;
             } else if (scoringTeamId.equals(match.team_b.team._id)) {
@@ -144,7 +142,6 @@ export const getAllMatches = async (req, res) => {
             }
           }
         });
-        
       }
 
       match.team_a.score = teamAScore;
@@ -305,7 +302,7 @@ export const getLastCreatedMatch = async (req, res) => {
       events.forEach((event) => {
         if (event.type === "goal" && event.team) {
           const scoringTeamId = event.team._id;
-      
+
           if (scoringTeamId.equals(lastMatch.team_a.team._id)) {
             teamAScore += 1;
           } else if (scoringTeamId.equals(lastMatch.team_b.team._id)) {
@@ -313,8 +310,6 @@ export const getLastCreatedMatch = async (req, res) => {
           }
         }
       });
-
-
 
       lastMatch.team_a.score = teamAScore;
       lastMatch.team_b.score = teamBScore;

@@ -31,8 +31,8 @@ export const getAllMatches = async (req, res) => {
         })
         .populate("referee", "firstName lastName role image")
         .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role")
-        .populate("linesman_two", "firstName lastName role")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
         .populate({
           path: "details",
           populate: {
@@ -63,8 +63,8 @@ export const getAllMatches = async (req, res) => {
         })
         .populate("referee", "firstName lastName role image")
         .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role")
-        .populate("linesman_two", "firstName lastName role")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
         .populate({
           path: "details",
           populate: {
@@ -95,8 +95,8 @@ export const getAllMatches = async (req, res) => {
         })
         .populate("referee", "firstName lastName role image")
         .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role")
-        .populate("linesman_two", "firstName lastName role")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
         .populate({
           path: "details",
           populate: {
@@ -108,7 +108,6 @@ export const getAllMatches = async (req, res) => {
         .exec();
     }
 
-    // Apply additional filter based on teamId
     if (teamId) {
       matches = matches.filter((match) => {
         return (
@@ -198,8 +197,8 @@ export const getLastCreatedMatch = async (req, res) => {
         })
         .populate("referee", "firstName lastName role image")
         .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role")
-        .populate("linesman_two", "firstName lastName role")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
         .populate({
           path: "details",
           populate: {
@@ -230,8 +229,8 @@ export const getLastCreatedMatch = async (req, res) => {
         })
         .populate("referee", "firstName lastName role image")
         .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role")
-        .populate("linesman_two", "firstName lastName role")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
         .populate({
           path: "details",
           populate: {
@@ -262,8 +261,8 @@ export const getLastCreatedMatch = async (req, res) => {
         })
         .populate("referee", "firstName lastName role image")
         .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role")
-        .populate("linesman_two", "firstName lastName role")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
         .populate({
           path: "details",
           populate: {
@@ -284,20 +283,6 @@ export const getLastCreatedMatch = async (req, res) => {
 
       let teamAScore = 0;
       let teamBScore = 0;
-
-      // events.forEach((event) => {
-      //   if (event.type === "goal" && event.team) {
-      //     const scoringTeam =
-      //       event.team.name === lastMatch.team_a.team.name
-      //         ? "team_a"
-      //         : "team_b";
-      //     if (scoringTeam === "team_a") {
-      //       teamAScore += 1;
-      //     } else {
-      //       teamBScore += 1;
-      //     }
-      //   }
-      // });
 
       events.forEach((event) => {
         if (event.type === "goal" && event.team) {
@@ -354,8 +339,8 @@ export const getMatch = async (req, res) => {
       })
       .populate("referee", "firstName lastName role image")
       .populate("watcher", "firstName lastName role image")
-      .populate("linesman_one", "firstName lastName role")
-      .populate("linesman_two", "firstName lastName role")
+      .populate("linesman_one", "firstName lastName role image")
+      .populate("linesman_two", "firstName lastName role image")
       .populate({
         path: "details",
         populate: {
@@ -369,16 +354,6 @@ export const getMatch = async (req, res) => {
     if (!match) {
       return res.status(404).json({ message: "Match not found" });
     }
-
-    // if (
-    //   match.details &&
-    //   match.details.details &&
-    //   match.details.details.length > 0
-    // ) {
-    //   await Match.findByIdAndUpdate(id, { played: true });
-    // } else {
-    //   await Match.findByIdAndUpdate(id, { played: false });
-    // }
 
     let teamAScore = 0;
     let teamBScore = 0;

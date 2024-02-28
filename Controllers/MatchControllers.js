@@ -146,21 +146,21 @@ export const getAllMatches = async (req, res) => {
       match.team_a.score = teamAScore;
       match.team_b.score = teamBScore;
 
-      const currentTimestamp = moment().valueOf();
-      const matchDateTime = moment(match.match_date).valueOf();
+      // const currentTimestamp = moment().valueOf();
+      // const matchDateTime = moment(match.match_date).valueOf();
 
-      if (matchDateTime > currentTimestamp) {
-        updatePromises.push(
-          Match.findByIdAndUpdate(match._id, { played: false })
-        );
-      } else {
-        updatePromises.push(
-          Match.findByIdAndUpdate(match._id, { played: true })
-        );
-      }
+      // if (matchDateTime > currentTimestamp) {
+      //   updatePromises.push(
+      //     Match.findByIdAndUpdate(match._id, { played: false })
+      //   );
+      // } else {
+      //   updatePromises.push(
+      //     Match.findByIdAndUpdate(match._id, { played: true })
+      //   );
+      // }
     }
 
-    await Promise.all(updatePromises);
+    // await Promise.all(updatePromises);
 
     return res.status(200).json(matches);
   } catch (error) {
@@ -299,14 +299,14 @@ export const getLastCreatedMatch = async (req, res) => {
       lastMatch.team_a.score = teamAScore;
       lastMatch.team_b.score = teamBScore;
 
-      const currentTimestamp = new Date().getTime();
-      const matchDateTime = new Date(lastMatch.match_date + " UTC").getTime();
+      // const currentTimestamp = new Date().getTime();
+      // const matchDateTime = new Date(lastMatch.match_date + " UTC").getTime();
 
-      if (matchDateTime > currentTimestamp) {
-        await Match.findByIdAndUpdate(lastMatch._id, { played: false });
-      } else {
-        await Match.findByIdAndUpdate(lastMatch._id, { played: true });
-      }
+      // if (matchDateTime > currentTimestamp) {
+      //   await Match.findByIdAndUpdate(lastMatch._id, { played: false });
+      // } else {
+      //   await Match.findByIdAndUpdate(lastMatch._id, { played: true });
+      // }
     }
 
     return res.status(200).json(lastMatch);
@@ -377,14 +377,14 @@ export const getMatch = async (req, res) => {
     match.team_a.score = teamAScore;
     match.team_b.score = teamBScore;
 
-    const currentTimestamp = new Date().getTime();
-    const matchDateTime = new Date(match.match_date + " UTC").getTime();
+    // const currentTimestamp = new Date().getTime();
+    // const matchDateTime = new Date(match.match_date + " UTC").getTime();
 
-    if (matchDateTime > currentTimestamp) {
-      await Match.findByIdAndUpdate(match._id, { played: false });
-    } else {
-      await Match.findByIdAndUpdate(match._id, { played: true });
-    }
+    // if (matchDateTime > currentTimestamp) {
+    //   await Match.findByIdAndUpdate(match._id, { played: false });
+    // } else {
+    //   await Match.findByIdAndUpdate(match._id, { played: true });
+    // }
 
     return res.status(200).json(match);
   } catch (error) {
@@ -490,6 +490,7 @@ export const createMatch = async (req, res) => {
 // Update a Match
 export const updateMatch = async (req, res) => {
   const id = req.params.id;
+  // console.log(req.body)
   try {
     const { match_date, match_time, time_zone, ...otherUpdatedData } = req.body;
 
@@ -508,14 +509,11 @@ export const updateMatch = async (req, res) => {
         .toDate();
     }
 
-    // Update other fields
     Object.assign(existingMatch, otherUpdatedData);
 
     const updatedMatch = await existingMatch.save();
 
     const populatedMatch = await Match.findById(updatedMatch._id)
-      // .populate("team_a.team", "name")
-      // .populate("team_b.team", "name")
       .populate({
         path: "team_a.team",
         select: "name image",
@@ -534,8 +532,8 @@ export const updateMatch = async (req, res) => {
       })
       .populate("referee", "firstName lastName role image")
       .populate("watcher", "firstName lastName role image")
-      .populate("linesman_one", "firstName lastName role")
-      .populate("linesman_two", "firstName lastName role")
+      .populate("linesman_one", "firstName lastName role image")
+      .populate("linesman_two", "firstName lastName role image")
       .populate({
         path: "details",
         populate: {
@@ -544,6 +542,8 @@ export const updateMatch = async (req, res) => {
         },
       })
       .exec();
+
+      // console.log(populatedMatch)
 
     return res.status(200).json(populatedMatch);
   } catch (error) {

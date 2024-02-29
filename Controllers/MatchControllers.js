@@ -145,22 +145,10 @@ export const getAllMatches = async (req, res) => {
 
       match.team_a.score = teamAScore;
       match.team_b.score = teamBScore;
-
-      // const currentTimestamp = moment().valueOf();
-      // const matchDateTime = moment(match.match_date).valueOf();
-
-      // if (matchDateTime > currentTimestamp) {
-      //   updatePromises.push(
-      //     Match.findByIdAndUpdate(match._id, { played: false })
-      //   );
-      // } else {
-      //   updatePromises.push(
-      //     Match.findByIdAndUpdate(match._id, { played: true })
-      //   );
-      // }
     }
 
-    // await Promise.all(updatePromises);
+    const matchCount = matches.length
+    // console.log(matchCount)
 
     return res.status(200).json(matches);
   } catch (error) {
@@ -298,15 +286,6 @@ export const getLastCreatedMatch = async (req, res) => {
 
       lastMatch.team_a.score = teamAScore;
       lastMatch.team_b.score = teamBScore;
-
-      // const currentTimestamp = new Date().getTime();
-      // const matchDateTime = new Date(lastMatch.match_date + " UTC").getTime();
-
-      // if (matchDateTime > currentTimestamp) {
-      //   await Match.findByIdAndUpdate(lastMatch._id, { played: false });
-      // } else {
-      //   await Match.findByIdAndUpdate(lastMatch._id, { played: true });
-      // }
     }
 
     return res.status(200).json(lastMatch);
@@ -543,7 +522,7 @@ export const updateMatch = async (req, res) => {
       })
       .exec();
 
-      // console.log(populatedMatch)
+    // console.log(populatedMatch)
 
     return res.status(200).json(populatedMatch);
   } catch (error) {

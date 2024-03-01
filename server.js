@@ -19,7 +19,7 @@ const corsOption = {
   // origin: process.env.FRONT_END_PATH,
   origin: [
     process.env.FRONT_END_PATH,
-    "https://final-project-frontend-9c1k.vercel.app/",
+    "https://final-project-frontend-9c1k.vercel.app",
   ],
   credentials: true,
   optionsSuccessStatus: 200,

@@ -16,7 +16,8 @@ const app = express();
 app.use(express.json());
 
 const corsOption = {
-  origin: process.env.FRONT_END_PATH,
+  // origin: process.env.FRONT_END_PATH,
+  origin : "*",
   credentials: true,
   optionsSuccessStatus: 200,
 };

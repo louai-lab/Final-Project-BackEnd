@@ -17,7 +17,10 @@ app.use(express.json());
 
 const corsOption = {
   // origin: process.env.FRONT_END_PATH,
-  origin : "*",
+  origin: [
+    process.env.FRONT_END_PATH,
+    "https://final-project-frontend-9c1k.vercel.app/",
+  ],
   credentials: true,
   optionsSuccessStatus: 200,
 };
@@ -29,10 +32,10 @@ app.use(cookieParser());
 app.use(cors(corsOption));
 
 app.use("/user", userRoutes);
-app.use('/player',playerRoutes)
-app.use('/team',teamRoutes)
-app.use('/match',matchRoutes)
-app.use('/matchdetails',matchDetailsRoutes)
+app.use("/player", playerRoutes);
+app.use("/team", teamRoutes);
+app.use("/match", matchRoutes);
+app.use("/matchdetails", matchDetailsRoutes);
 
 app.listen(PORT, () => {
   connect();

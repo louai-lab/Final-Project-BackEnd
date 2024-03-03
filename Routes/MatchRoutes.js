@@ -4,6 +4,7 @@ import {
   deleteMatch,
   getAllMatches,
   getLastCreatedMatch,
+  getLastTwoCreatedMatches,
   getMatch,
   updateMatch,
 } from "../Controllers/MatchControllers.js";
@@ -13,6 +14,7 @@ const matchRoutes = express.Router();
 
 matchRoutes.get("/", auth, getAllMatches);
 matchRoutes.get("/getlastcreatedmatch", auth, getLastCreatedMatch);
+matchRoutes.get("/getLastTwoCreatedMatches", auth, getLastTwoCreatedMatches);
 matchRoutes.get("/match/:id", getMatch);
 matchRoutes.post("/add", createMatch);
 matchRoutes.patch("/update/:id", updateMatch);

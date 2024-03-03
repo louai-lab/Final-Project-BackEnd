@@ -147,7 +147,7 @@ export const getAllMatches = async (req, res) => {
       match.team_b.score = teamBScore;
     }
 
-    const matchCount = matches.length
+    const matchCount = matches.length;
     // console.log(matchCount)
 
     return res.status(200).json(matches);
@@ -289,6 +289,150 @@ export const getLastCreatedMatch = async (req, res) => {
     }
 
     return res.status(200).json(lastMatch);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+// Get the last 2 matches
+export const getLastTwoCreatedMatches = async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+
+    let lastTwoMatches;
+
+    if (req.user?.role === "watcher") {
+      lastTwoMatches = await Match.find({ watcher: userId })
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .populate({
+          path: "team_a.team",
+          select: "name image",
+          populate: {
+            path: "players",
+            select: "name",
+          },
+        })
+        .populate({
+          path: "team_b.team",
+          select: "name image",
+          populate: {
+            path: "players",
+            select: "name",
+          },
+        })
+        .populate("referee", "firstName lastName role image")
+        .populate("watcher", "firstName lastName role image")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
+        .populate({
+          path: "details",
+          populate: {
+            path: "details.team details.playerIn details.playerOut",
+            select: "name",
+          },
+        })
+        .lean()
+        .exec();
+    } else if (req.user?.role === "referee") {
+      lastTwoMatches = await Match.find({ referee: userId })
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .populate({
+          path: "team_a.team",
+          select: "name image",
+          populate: {
+            path: "players",
+            select: "name",
+          },
+        })
+        .populate({
+          path: "team_b.team",
+          select: "name image",
+          populate: {
+            path: "players",
+            select: "name",
+          },
+        })
+        .populate("referee", "firstName lastName role image")
+        .populate("watcher", "firstName lastName role image")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
+        .populate({
+          path: "details",
+          populate: {
+            path: "details.team details.playerIn details.playerOut",
+            select: "name",
+          },
+        })
+        .lean()
+        .exec();
+    } else {
+      lastTwoMatches = await Match.find()
+        .sort({ createdAt: -1 })
+        .limit(2)
+        .populate({
+          path: "team_a.team",
+          select: "name image",
+          populate: {
+            path: "players",
+            select: "name",
+          },
+        })
+        .populate({
+          path: "team_b.team",
+          select: "name image",
+          populate: {
+            path: "players",
+            select: "name",
+          },
+        })
+        .populate("referee", "firstName lastName role image")
+        .populate("watcher", "firstName lastName role image")
+        .populate("linesman_one", "firstName lastName role image")
+        .populate("linesman_two", "firstName lastName role image")
+        .populate({
+          path: "details",
+          populate: {
+            path: "details.team details.playerIn details.playerOut",
+            select: "name",
+          },
+        })
+        .lean()
+        .exec();
+    }
+
+    if (!lastTwoMatches || lastTwoMatches.length === 0) {
+      return res.status(404).json({ message: "No matches found" });
+    }
+
+    // Update scores for each match
+    for (const match of lastTwoMatches) {
+      let teamAScore = 0;
+      let teamBScore = 0;
+
+      if (match.details && match.details.details) {
+        const events = match.details.details;
+
+        events.forEach((event) => {
+          if (event.type === "goal" && event.team) {
+            const scoringTeamId = event.team._id;
+
+            if (scoringTeamId.equals(match.team_a.team._id)) {
+              teamAScore += 1;
+            } else if (scoringTeamId.equals(match.team_b.team._id)) {
+              teamBScore += 1;
+            }
+          }
+        });
+      }
+
+      match.team_a.score = teamAScore;
+      match.team_b.score = teamBScore;
+    }
+
+    return res.status(200).json(lastTwoMatches);
   } catch (error) {
     console.log(error);
     return res.status(500).send("Internal Server Error");

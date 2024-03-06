@@ -500,15 +500,6 @@ export const getMatch = async (req, res) => {
     match.team_a.score = teamAScore;
     match.team_b.score = teamBScore;
 
-    // const currentTimestamp = new Date().getTime();
-    // const matchDateTime = new Date(match.match_date + " UTC").getTime();
-
-    // if (matchDateTime > currentTimestamp) {
-    //   await Match.findByIdAndUpdate(match._id, { played: false });
-    // } else {
-    //   await Match.findByIdAndUpdate(match._id, { played: true });
-    // }
-
     return res.status(200).json(match);
   } catch (error) {
     console.log(error);
@@ -537,13 +528,20 @@ export const createMatch = async (req, res) => {
       match_time,
       time_zone,
     } = req.body;
-    // console.log(req.body)
 
-    const combinedDateTime = `${match_date} ${match_time}`;
+    // const combinedDateTime = `${match_date} ${match_time}`;
 
-    const formattedMatchDateTime = moment
-      .tz(combinedDateTime, "YYYY/MM/DD h:mm A", time_zone)
-      .toDate();
+    // const formattedMatchDateTime = moment
+    //   .tz(combinedDateTime, "YYYY/MM/DD h:mm A", time_zone)
+    //   .toDate();
+
+    const formattedMatchDate = moment
+      .tz(match_date, "YYYY/MM/DD", time_zone)
+      .format("YYYY-MM-DD");
+
+    const formattedMatchTime = moment
+      .tz(match_time, "h:mm A", time_zone)
+      .format("HH:mm");
 
     // Create a new match
     const newMatch = new Match({
@@ -556,7 +554,8 @@ export const createMatch = async (req, res) => {
       watcher,
       linesman_one,
       linesman_two,
-      match_date: formattedMatchDateTime,
+      match_date: formattedMatchDate,
+      match_time: formattedMatchTime,
     });
 
     const savedMatch = await newMatch.save();
@@ -613,7 +612,7 @@ export const createMatch = async (req, res) => {
 // Update a Match
 export const updateMatch = async (req, res) => {
   const id = req.params.id;
-  // console.log(req.body)
+
   try {
     const { match_date, match_time, time_zone, ...otherUpdatedData } = req.body;
 
@@ -622,14 +621,24 @@ export const updateMatch = async (req, res) => {
       return res.status(404).json({ message: "Match not found" });
     }
 
+    // if (match_date) {
+    //   existingMatch.match_date = moment.tz(match_date, "MM/DD/YYYY").toDate();
+    // }
     if (match_date) {
-      existingMatch.match_date = moment.tz(match_date, "MM/DD/YYYY").toDate();
+      existingMatch.match_date = moment
+        .tz(match_date, "MM/DD/YYYY")
+        .toDate();
     }
 
+    // if (match_time) {
+    //   existingMatch.match_date = moment
+    //     .tz(`${match_date} ${match_time}`, "MM/DD/YYYY h:mm A")
+    //     .toDate();
+    // }
+
     if (match_time) {
-      existingMatch.match_date = moment
-        .tz(`${match_date} ${match_time}`, "MM/DD/YYYY h:mm A")
-        .toDate();
+      // Update only the match_time
+      existingMatch.match_time = match_time;
     }
 
     Object.assign(existingMatch, otherUpdatedData);
@@ -665,8 +674,6 @@ export const updateMatch = async (req, res) => {
         },
       })
       .exec();
-
-    // console.log(populatedMatch)
 
     return res.status(200).json(populatedMatch);
   } catch (error) {

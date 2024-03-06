@@ -57,7 +57,14 @@ const MatchSchema = new mongoose.Schema(
       default: false,
     },
 
-    match_date: Date,
+    match_date: {
+      type: Date,
+      required: true,
+    },
+    match_time: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

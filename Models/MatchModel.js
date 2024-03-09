@@ -48,7 +48,11 @@ const MatchSchema = new mongoose.Schema(
       required: true,
     },
 
-    details: {
+    // details: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "MatchDetails",
+    // },
+    detailsWatcher: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MatchDetails",
     },

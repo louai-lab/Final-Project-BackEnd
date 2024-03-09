@@ -34,7 +34,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -66,7 +66,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -98,7 +98,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -188,7 +188,7 @@ export const getLastCreatedMatch = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -220,7 +220,7 @@ export const getLastCreatedMatch = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -252,7 +252,7 @@ export const getLastCreatedMatch = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -327,7 +327,7 @@ export const getLastTwoCreatedMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -360,7 +360,7 @@ export const getLastTwoCreatedMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -393,7 +393,7 @@ export const getLastTwoCreatedMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate({
-          path: "details",
+          path: "detailsWatcher",
           populate: {
             path: "details.team details.playerIn details.playerOut",
             select: "name",
@@ -465,7 +465,7 @@ export const getMatch = async (req, res) => {
       .populate("linesman_one", "firstName lastName role image")
       .populate("linesman_two", "firstName lastName role image")
       .populate({
-        path: "details",
+        path: "detailsWatcher",
         populate: {
           path: "details.team details.playerIn details.playerOut",
           select: "name",
@@ -521,7 +521,7 @@ export const createMatch = async (req, res) => {
       team_b,
       referee,
       watcher,
-      details,
+      detailsWatcher,
       linesman_one,
       linesman_two,
       match_date,
@@ -561,12 +561,12 @@ export const createMatch = async (req, res) => {
     const savedMatch = await newMatch.save();
 
     const newMatchDetails = new MatchDetails({
-      details,
+      detailsWatcher,
     });
 
     const savedMatchDetails = await newMatchDetails.save();
 
-    savedMatch.details = savedMatchDetails._id;
+    savedMatch.detailsWatcher = savedMatchDetails._id;
     await savedMatch.save();
 
     // res.status(201).json(savedMatch);
@@ -594,7 +594,7 @@ export const createMatch = async (req, res) => {
       .populate("linesman_one", "firstName lastName role")
       .populate("linesman_two", "firstName lastName role")
       .populate({
-        path: "details",
+        path: "detailsWatcher",
         populate: {
           path: "details.team details.playerIn details.playerOut",
           select: "name",
@@ -621,23 +621,11 @@ export const updateMatch = async (req, res) => {
       return res.status(404).json({ message: "Match not found" });
     }
 
-    // if (match_date) {
-    //   existingMatch.match_date = moment.tz(match_date, "MM/DD/YYYY").toDate();
-    // }
     if (match_date) {
-      existingMatch.match_date = moment
-        .tz(match_date, "MM/DD/YYYY")
-        .toDate();
+      existingMatch.match_date = moment.tz(match_date, "MM/DD/YYYY").toDate();
     }
 
-    // if (match_time) {
-    //   existingMatch.match_date = moment
-    //     .tz(`${match_date} ${match_time}`, "MM/DD/YYYY h:mm A")
-    //     .toDate();
-    // }
-
     if (match_time) {
-      // Update only the match_time
       existingMatch.match_time = match_time;
     }
 
@@ -667,7 +655,7 @@ export const updateMatch = async (req, res) => {
       .populate("linesman_one", "firstName lastName role image")
       .populate("linesman_two", "firstName lastName role image")
       .populate({
-        path: "details",
+        path: "detailsWatcher",
         populate: {
           path: "details.team details.playerIn details.playerOut",
           select: "name",

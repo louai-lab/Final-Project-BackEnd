@@ -92,7 +92,7 @@ export const updateMatchDetails = async (req, res) => {
 
     // Retrieve the associated match
     const associatedMatch = await Match.findOne({
-      details: updatedMatchDetails._id,
+      detailsWatcher: updatedMatchDetails._id,
     });
 
     // Update the played field based on details

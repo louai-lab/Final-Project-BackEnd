@@ -9,10 +9,11 @@ import {
   updateMatch,
 } from "../Controllers/MatchControllers.js";
 import { auth } from "../middleware/Auth.js";
+import { paginate } from "../middleware/Pagination.js";
 
 const matchRoutes = express.Router();
 
-matchRoutes.get("/", auth, getAllMatches);
+matchRoutes.get("/", paginate , auth, getAllMatches);
 matchRoutes.get("/getlastcreatedmatch", auth, getLastCreatedMatch);
 matchRoutes.get("/getLastTwoCreatedMatches", auth, getLastTwoCreatedMatches);
 matchRoutes.get("/match/:id", getMatch);

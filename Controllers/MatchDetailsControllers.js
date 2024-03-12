@@ -90,18 +90,6 @@ export const updateMatchDetails = async (req, res) => {
       .populate("details.playerIn details.playerOut", "name")
       .exec();
 
-    // Retrieve the associated match
-    const associatedMatch = await Match.findOne({
-      detailsWatcher: updatedMatchDetails._id,
-    });
-
-    // Update the played field based on details
-    if (updatedMatchDetails.details && updatedMatchDetails.details.length > 0) {
-      await Match.findByIdAndUpdate(associatedMatch._id, { played: true });
-    } else {
-      await Match.findByIdAndUpdate(associatedMatch._id, { played: false });
-    }
-
     return res.status(200).json(updatedMatchDetails);
   } catch (error) {
     console.error(error);

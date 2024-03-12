@@ -117,18 +117,22 @@ export const getAllMatches = async (req, res) => {
       });
     }
 
+    const { offset, limit } = req;
+
+    matches = matches.slice(offset, offset + limit);
+
     if (!matches) {
       return res.status(404).json({ message: "No matches found" });
     }
 
-    const updatePromises = [];
+    // const updatePromises = [];
 
     for (const match of matches) {
       let teamAScore = 0;
       let teamBScore = 0;
 
-      if (match.details && match.details.details) {
-        const events = match.details.details;
+      if (match.detailsWatcher && match.detailsWatcher.details) {
+        const events = match.detailsWatcher.details;
 
         events.forEach((event) => {
           if (event.type === "goal" && event.team) {
@@ -481,8 +485,8 @@ export const getMatch = async (req, res) => {
     let teamAScore = 0;
     let teamBScore = 0;
 
-    if (match.details && match.details.details) {
-      const events = match.details.details;
+    if (match.detailsWatcher && match.detailsWatcher.details) {
+      const events = match.detailsWatcher.details;
 
       events.forEach((event) => {
         if (event.type === "goal" && event.team) {

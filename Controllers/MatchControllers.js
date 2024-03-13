@@ -125,7 +125,6 @@ export const getAllMatches = async (req, res) => {
       return res.status(404).json({ message: "No matches found" });
     }
 
-    // const updatePromises = [];
 
     for (const match of matches) {
       let teamAScore = 0;
@@ -152,7 +151,6 @@ export const getAllMatches = async (req, res) => {
     }
 
     const matchCount = matches.length;
-    // console.log(matchCount)
 
     return res.status(200).json(matches);
   } catch (error) {

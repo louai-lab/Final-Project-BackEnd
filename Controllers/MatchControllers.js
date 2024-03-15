@@ -108,6 +108,8 @@ export const getAllMatches = async (req, res) => {
         .exec();
     }
 
+    const matchCount = matches.length;
+
     if (teamId) {
       matches = matches.filter((match) => {
         return (
@@ -124,7 +126,6 @@ export const getAllMatches = async (req, res) => {
     if (!matches) {
       return res.status(404).json({ message: "No matches found" });
     }
-
 
     for (const match of matches) {
       let teamAScore = 0;
@@ -150,152 +151,12 @@ export const getAllMatches = async (req, res) => {
       match.team_b.score = teamBScore;
     }
 
-    const matchCount = matches.length;
-
-    return res.status(200).json(matches);
+    return res.status(200).json({ matches, matchCount });
   } catch (error) {
     console.log(error);
     return res.status(500).send("Internal Server Error");
   }
 };
-
-// export const getLastCreatedMatch = async (req, res) => {
-//   try {
-//     const userId = req.user?.userId;
-//     // console.log(userId)
-
-//     let lastMatch;
-
-//     if (req.user?.role === "watcher") {
-//       lastMatch = await Match.findOne({ watcher: userId })
-//         .sort({ createdAt: -1 })
-//         .populate({
-//           path: "team_a.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate({
-//           path: "team_b.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate("referee", "firstName lastName role image")
-//         .populate("watcher", "firstName lastName role image")
-//         .populate("linesman_one", "firstName lastName role image")
-//         .populate("linesman_two", "firstName lastName role image")
-//         .populate({
-//           path: "detailsWatcher",
-//           populate: {
-//             path: "details.team details.playerIn details.playerOut",
-//             select: "name",
-//           },
-//         })
-//         .lean()
-//         .exec();
-//     } else if (req.user?.role === "referee") {
-//       lastMatch = await Match.findOne({ referee: userId })
-//         .sort({ createdAt: -1 })
-//         .populate({
-//           path: "team_a.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate({
-//           path: "team_b.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate("referee", "firstName lastName role image")
-//         .populate("watcher", "firstName lastName role image")
-//         .populate("linesman_one", "firstName lastName role image")
-//         .populate("linesman_two", "firstName lastName role image")
-//         .populate({
-//           path: "detailsWatcher",
-//           populate: {
-//             path: "details.team details.playerIn details.playerOut",
-//             select: "name",
-//           },
-//         })
-//         .lean()
-//         .exec();
-//     } else {
-//       lastMatch = await Match.findOne()
-//         .sort({ createdAt: -1 })
-//         .populate({
-//           path: "team_a.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate({
-//           path: "team_b.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate("referee", "firstName lastName role image")
-//         .populate("watcher", "firstName lastName role image")
-//         .populate("linesman_one", "firstName lastName role image")
-//         .populate("linesman_two", "firstName lastName role image")
-//         .populate({
-//           path: "detailsWatcher",
-//           populate: {
-//             path: "details.team details.playerIn details.playerOut",
-//             select: "name",
-//           },
-//         })
-//         .lean()
-//         .exec();
-//     }
-
-//     if (!lastMatch) {
-//       return res.status(404).json({ message: "No matches found" });
-//     }
-
-//     if (lastMatch.details && lastMatch.details.details) {
-//       const events = lastMatch.details.details;
-
-//       let teamAScore = 0;
-//       let teamBScore = 0;
-
-//       events.forEach((event) => {
-//         if (event.type === "goal" && event.team) {
-//           const scoringTeamId = event.team._id;
-
-//           if (scoringTeamId.equals(lastMatch.team_a.team._id)) {
-//             teamAScore += 1;
-//           } else if (scoringTeamId.equals(lastMatch.team_b.team._id)) {
-//             teamBScore += 1;
-//           }
-//         }
-//       });
-
-//       lastMatch.team_a.score = teamAScore;
-//       lastMatch.team_b.score = teamBScore;
-//     }
-
-//     return res.status(200).json(lastMatch);
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).send("Internal Server Error");
-//   }
-// };
 
 // Get the last 2 matches
 export const getLastTwoCreatedMatches = async (req, res) => {

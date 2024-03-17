@@ -1,3 +1,4 @@
+import { query } from "express";
 import Player from "../Models/PlayerModel.js";
 import Team from "../Models/TeamModel.js";
 
@@ -5,11 +6,31 @@ import Team from "../Models/TeamModel.js";
 
 export const getAllPlayers = async (req, res) => {
   try {
-    const players = await Player.find()
+    const playerName = req.query.playerName;
+
+    let players;
+
+    let query = {};
+
+    if (playerName) {
+      query.name = { $regex: new RegExp(playerName, "i") };
+    }
+    players = await Player.find(query)
       .populate("team", "name image")
       .sort({ createdAt: -1 })
       .exec();
-    res.status(201).json(players);
+
+    const playersCount = players.length;
+
+    const { offset, limit } = req;
+
+    players = players.slice(offset, offset + limit);
+
+    if (!players) {
+      return res.status(404).json({ message: "No Players found" });
+    }
+
+    res.status(200).json({ players, playersCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -29,8 +50,6 @@ export const getPlayersWithoutTeam = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
 
 // Add A Player
 export const addPlayer = async (req, res) => {

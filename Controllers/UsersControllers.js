@@ -9,9 +9,9 @@ dotenv.config();
 
 // get all users
 
-export const getAllUsers = async (  req, res) => {
+export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().sort({createdAt:-1});
+    const users = await User.find().sort({ createdAt: -1 });
     res.status(201).json(users);
   } catch (error) {
     console.error(error);
@@ -19,11 +19,12 @@ export const getAllUsers = async (  req, res) => {
   }
 };
 
-
 // get all users that role "referee"
-export const getAllReferees = async (  req, res) => {
+export const getAllReferees = async (req, res) => {
   try {
-    const referees = await User.find({role:"referee"}).sort({createdAt:-1});
+    const referees = await User.find({ role: "referee" }).sort({
+      createdAt: -1,
+    });
     res.status(201).json(referees);
   } catch (error) {
     console.error(error);
@@ -34,7 +35,9 @@ export const getAllReferees = async (  req, res) => {
 // get all users that role "watcher"
 export const getAllWatchers = async (req, res) => {
   try {
-    const watchers = await User.find({role:"watcher"}).sort({createdAt:-1});
+    const watchers = await User.find({ role: "watcher" }).sort({
+      createdAt: -1,
+    });
     res.status(201).json(watchers);
   } catch (error) {
     console.error(error);
@@ -45,15 +48,15 @@ export const getAllWatchers = async (req, res) => {
 // get all users that role "linesman"
 export const getAllLinesman = async (req, res) => {
   try {
-    const linesMan = await User.find({role:"linesman"}).sort({createdAt:-1});
+    const linesMan = await User.find({ role: "linesman" }).sort({
+      createdAt: -1,
+    });
     res.status(201).json(linesMan);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-
 
 // Get one User
 
@@ -146,13 +149,13 @@ export const login = async (req, res) => {
 
   try {
     if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+      return res.status(403).json({ error: "Email and password are required" });
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(401).json({ error: "Email or password is incorrect" });
+      return res.status(401).json({ error: "Email is incorrect" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -182,7 +185,7 @@ export const login = async (req, res) => {
         .status(200)
         .json(user);
     } else {
-      return res.status(401).json({ error: "Password is incorrect" });
+      return res.status(402).json({ error: "Password is incorrect" });
     }
   } catch (error) {
     console.log(error);
@@ -247,6 +250,7 @@ export const addUser = async (req, res) => {
 // Update the user
 export const updateUser = async (req, res) => {
   const id = req.params.id;
+  // const userId = req.user?.userId;
   const {
     firstName,
     lastName,
@@ -256,6 +260,8 @@ export const updateUser = async (req, res) => {
     newPassword,
     password,
   } = req.body;
+
+  // console.log(req.body);
 
   try {
     const existingUser = await User.findById(id);

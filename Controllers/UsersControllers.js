@@ -249,7 +249,8 @@ export const addUser = async (req, res) => {
 
 // Update the user
 export const updateUser = async (req, res) => {
-  const id = req.params.id;
+  // const id = req.params.id;
+  const id = req.body.id
   // const userId = req.user?.userId;
   const {
     firstName,

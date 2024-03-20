@@ -5,7 +5,9 @@ import MatchDetails from "../Models/MatchDetailsModel.js";
 // Get All the Matches
 export const getAllMatches = async (req, res) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?._id;
+
+    // console.log(req.user._id);
     const teamId = req.query.teamId;
 
     let matches;
@@ -161,7 +163,7 @@ export const getAllMatches = async (req, res) => {
 // Get the last 2 matches
 export const getLastTwoCreatedMatches = async (req, res) => {
   try {
-    const userId = req.user?.userId;
+    const userId = req.user?._id;
 
     let lastTwoMatches;
 
@@ -391,12 +393,6 @@ export const createMatch = async (req, res) => {
       match_time,
       time_zone,
     } = req.body;
-
-    // const combinedDateTime = `${match_date} ${match_time}`;
-
-    // const formattedMatchDateTime = moment
-    //   .tz(combinedDateTime, "YYYY/MM/DD h:mm A", time_zone)
-    //   .toDate();
 
     const formattedMatchDate = moment
       .tz(match_date, "YYYY/MM/DD", time_zone)

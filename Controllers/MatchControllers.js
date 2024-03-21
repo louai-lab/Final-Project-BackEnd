@@ -272,6 +272,8 @@ export const getLastTwoCreatedMatches = async (req, res) => {
       return res.status(404).json({ message: "No matches found" });
     }
 
+    // console.log(lastTwoMatches);
+
     // Update scores for each match
     for (const match of lastTwoMatches) {
       let teamAScore = 0;

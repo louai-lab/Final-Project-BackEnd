@@ -247,11 +247,9 @@ export const addUser = async (req, res) => {
   }
 };
 
-// Update the user
+// Update the user with check user
 export const updateUser = async (req, res) => {
-  // const id = req.params.id;
-  const id = req.body.id
-  // const userId = req.user?.userId;
+  const id = req.body.id;
   const {
     firstName,
     lastName,
@@ -261,8 +259,6 @@ export const updateUser = async (req, res) => {
     newPassword,
     password,
   } = req.body;
-
-  // console.log(req.body);
 
   try {
     const existingUser = await User.findById(id);
@@ -315,6 +311,64 @@ export const updateUser = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };
+
+// Update the user without checking old password
+export const updateUserNoCheck = async (req, res) => {
+  const id = req.body.id;
+  const {
+    firstName,
+    lastName,
+    role,
+    email,
+    newPassword,
+    password,
+  } = req.body;
+
+  try {
+    const existingUser = await User.findById(id);
+
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update user fields
+    if (firstName) existingUser.firstName = firstName;
+    if (lastName) existingUser.lastName = lastName;
+    if (role) existingUser.role = role;
+    if (email) existingUser.email = email;
+    if (newPassword) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      existingUser.password = hashedPassword;
+    }
+
+    const oldImagePath = `public/images/${existingUser.image}`;
+
+    if (req.file) {
+      existingUser.image = req.file.filename;
+
+      fs.unlinkSync(oldImagePath, (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: `error deleting the old image` });
+        }
+      });
+    }
+
+    await existingUser.save();
+    return res.status(200).json(existingUser);
+  } catch (error) {
+    console.error(error);
+    const imagePath = `public/images/${req.file.filename}`;
+    fs.unlinkSync(imagePath);
+    return res.status(500).json({ error: "Internal Server Error", msg: error });
+  }
+};
+
+
+
+
 
 // Delete an user
 export const deleteUser = async (req, res) => {

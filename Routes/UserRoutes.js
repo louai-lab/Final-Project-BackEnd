@@ -9,6 +9,7 @@ import {
   getOneUser,
   addUser,
   updateUser,
+  updateUserNoCheck,
   deleteUser,
   loggedInUser,
   getAllReferees,
@@ -25,8 +26,8 @@ userRoutes.get("/referees", getAllReferees);
 userRoutes.get("/watchers", getAllWatchers);
 userRoutes.get("/linesman", getAllLinesman);
 userRoutes.post("/add", upload.single("image"), addUser);
-// userRoutes.patch("/update/:id", upload.single("image"), updateUser);
 userRoutes.patch("/update", upload.single("image"), updateUser);
+userRoutes.patch("/updateNoCheck", upload.single("image"), updateUserNoCheck);
 userRoutes.delete("/delete/:id", upload.single("image"), deleteUser);
 userRoutes.post("/", upload.single("image"), resgister);
 userRoutes.get("/logged-in-user", auth, loggedInUser);

@@ -3,19 +3,21 @@ import Player from "../Models/PlayerModel.js";
 import Team from "../Models/TeamModel.js";
 
 // Get All Players
-
 export const getAllPlayers = async (req, res) => {
   try {
-    const playerName = req.query.playerName;
-
-    let players;
+    const { team, playerName } = req.query;
 
     let query = {};
+
+    if (team) {
+      query.team = team;
+    }
 
     if (playerName) {
       query.name = { $regex: new RegExp(playerName, "i") };
     }
-    players = await Player.find(query)
+
+    let players = await Player.find(query)
       .populate("team", "name image")
       .sort({ createdAt: -1 })
       .exec();
@@ -111,7 +113,6 @@ export const updatePlayer = async (req, res) => {
 
     if (team !== undefined) {
       if (team === null || team === "") {
-        // Handle the case where the player is removed from the team
         if (currentTeam) {
           const previousTeam = await Team.findById(currentTeam);
           if (previousTeam) {

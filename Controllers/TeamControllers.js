@@ -134,129 +134,10 @@ export const deleteTeam = async (req, res) => {
   }
 };
 
-// // update the team
-// export const updateTeam = async (req, res) => {
-//   const id = req.params.id;
-//   const { name } = req.body;
-
-//   try {
-//     const existingTeam = await Team.findById(id);
-
-//     if (!existingTeam) {
-//       return res.status(404).json({ error: "Team not found" });
-//     }
-
-//     if (name) existingTeam.name = name;
-
-//     const oldImagePath = `public/images/${existingTeam.image}`;
-
-//     if (req.file) {
-//       existingTeam.image = req.file.filename;
-
-//       fs.unlinkSync(oldImagePath, (err) => {
-//         if (err) {
-//           return res
-//             .status(500)
-//             .json({ error: `error deleting the old image` });
-//         }
-//       });
-//     }
-
-//     await existingTeam.save();
-//     return res.status(200).json(existingTeam);
-//   } catch (error) {
-//     console.error(error);
-//     const imagePath = `public/images/${req.file.filename}`;
-//     fs.unlinkSync(imagePath);
-//     return res.status(500).json({ error: "Internal Server Error", msg: error });
-//   }
-// };
-
-// // Delete Player from Team
-// export const deletePlayerFromTeam = async (req, res) => {
-//   const idTeam = req.params.idTeam;
-//   const idPlayer = req.params.idPlayer;
-
-//   try {
-//     const existingTeam = await Team.findById(idTeam);
-
-//     if (!existingTeam) {
-//       return res.status(404).json({ error: "Team not found" });
-//     }
-
-//     const playerInTeamIndex = existingTeam.players.findIndex(
-//       (player) => player._id.toString() === idPlayer
-//     );
-
-//     if (playerInTeamIndex === -1) {
-//       return res.status(404).json({ error: "Player not found in the team" });
-//     }
-
-//     const playerData = existingTeam.players[playerInTeamIndex];
-//     await Player.findByIdAndUpdate(idPlayer, { $set: { team: null } });
-
-//     existingTeam.players.splice(playerInTeamIndex, 1);
-
-//     const updatedTeam = await existingTeam.save();
-
-//     return res.status(200).json({
-//       message: "Player removed successfully",
-//       updatedTeam: updatedTeam,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
-// // Add players or one player to the team
-// export const addPlayersToTeam = async (req, res) => {
-//   const { idTeam, playerIds } = req.body;
-
-//   try {
-//     const team = await Team.findById(idTeam);
-
-//     if (!team) {
-//       console.log("Team not found");
-//       return res.status(404).json({ error: "Team not found" });
-//     }
-
-//     const players = await Player.find({ _id: { $in: playerIds } });
-
-//     const playersWithTeams = await Player.find({
-//       _id: { $in: playerIds },
-//       team: { $ne: null },
-//     });
-
-//     if (playersWithTeams.length > 0) {
-//       return res.status(400).json({
-//         error: "One or more players are already associated with another team",
-//       });
-//     }
-
-//     team.players.push(...players);
-
-//     players.forEach((player) => {
-//       player.team = team._id;
-//     });
-
-//     await Promise.all([team.save(), ...players.map((player) => player.save())]);
-
-//     return res
-//       .status(200)
-//       .json({ message: "Players added successfully", team });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
-
-// Update team and players
-
-// Update team, add or remove players, and update image
-export const updateTeamAndPlayers = async (req, res) => {
+// update the team
+export const updateTeam = async (req, res) => {
   const id = req.params.id;
-  const { name, playerIds } = req.body;
+  const { name } = req.body;
 
   try {
     const existingTeam = await Team.findById(id);
@@ -265,53 +146,20 @@ export const updateTeamAndPlayers = async (req, res) => {
       return res.status(404).json({ error: "Team not found" });
     }
 
-    if (name && name !== existingTeam.name) {
-      existingTeam.name = name;
-    }
+    if (name) existingTeam.name = name;
 
     const oldImagePath = `public/images/${existingTeam.image}`;
+
     if (req.file) {
       existingTeam.image = req.file.filename;
 
       fs.unlinkSync(oldImagePath, (err) => {
         if (err) {
-          console.error("Error deleting the old image:", err);
+          return res
+            .status(500)
+            .json({ error: `error deleting the old image` });
         }
       });
-    }
-
-    if (playerIds) {
-      const newPlayers = await Player.find({ _id: { $in: playerIds } });
-
-      const existingPlayerIds = existingTeam.players.map((player) =>
-        player._id.toString()
-      );
-
-      // Remove existing players who are not in the new list
-      for (const existingPlayer of existingTeam.players) {
-        if (!playerIds.includes(existingPlayer._id.toString())) {
-          // Fetch the player by ID to ensure it's a Mongoose model instance
-          const playerToRemove = await Player.findById(existingPlayer._id);
-          if (playerToRemove) {
-            playerToRemove.team = null;
-            await playerToRemove.save();
-          }
-        }
-      }
-
-      // Add new players who are not already in the team
-      for (const newPlayer of newPlayers) {
-        if (
-          !existingTeam.players.some((player) =>
-            player._id.equals(newPlayer._id)
-          )
-        ) {
-          newPlayer.team = existingTeam._id;
-          await newPlayer.save();
-        }
-      }
-
-      existingTeam.players = newPlayers;
     }
 
     await existingTeam.save();
@@ -320,6 +168,6 @@ export const updateTeamAndPlayers = async (req, res) => {
     console.error(error);
     const imagePath = `public/images/${req.file.filename}`;
     fs.unlinkSync(imagePath);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };

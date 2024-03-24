@@ -7,7 +7,6 @@ export const getAllMatchDetails = async (req, res) => {
   try {
     const matcheDetails = await MatchDetails.find()
       .populate("details.team", "name")
-      // .populate("details.player", "name")
       .populate("details.playerIn", "name")
       .populate("details.playerOut", "name")
       .exec();
@@ -20,19 +19,6 @@ export const getAllMatchDetails = async (req, res) => {
 };
 
 // create a matchDetails , it will be created by default when i create a Match
-// export const createMatchDetails = async (req, res) => {
-//   try {
-//     const { details } = req.body;
-
-//     const newMatchDetails = await MatchDetails.create({ details });
-
-//     return res.status(201).json(newMatchDetails);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Internal Server Error" });
-//   }
-// };
-
 export const createMatchDetails = async (req, res) => {
   try {
     const { details } = req.body;
@@ -93,7 +79,7 @@ export const updateMatchDetails = async (req, res) => {
     return res.status(200).json(updatedMatchDetails);
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Internal Server Error");
+    return res.status(500).send(error);
   }
 };
 
@@ -119,36 +105,6 @@ export const deleteObject = async (req, res) => {
     return res.status(500).send("Internal Server Error");
   }
 };
-
-// export const updateObject = async (req, res) => {
-//   const id = req.params.id;
-//   const matchDetailsId = req.params.matchDetailsId;
-//   const newData = req.body;
-
-//   try {
-//     const match = await MatchDetails.findOneAndUpdate(
-//       { _id: matchDetailsId, "details._id": id },
-//       {
-//         $set: {
-//           "details.$.type": newData.type,
-//           "details.$.team": newData.team,
-//           "details.$.playerIn": newData.playerIn,
-//           "details.$.playerOut": newData.playerOut,
-//           "details.$.minute": newData.minute,
-//         },
-//       },
-//       { new: true }
-//     );
-
-//     if (!match) {
-//       return res.status(404).json({ message: "Match not found" });
-//     }
-//     return res.status(200).json(match);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).send("Internal Server Error");
-//   }
-// };
 
 export const updateObject = async (req, res) => {
   const id = req.params.id;

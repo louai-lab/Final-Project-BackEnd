@@ -8,18 +8,15 @@ const MatchDetailsSchema = new mongoose.Schema({
     {
       type: {
         type: String,
-        enum: ["goal", "yellow_card", "red_card", "substitution"],
-        // required: true,
+        enum: ["goal", "yellow_card", "red_card", "substitution", "HT"],
       },
       team: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Team",
-        // required: true,
       },
       playerIn: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",
-        // required: true,
       },
 
       playerOut: {
@@ -28,7 +25,6 @@ const MatchDetailsSchema = new mongoose.Schema({
       },
       minute: {
         type: Number,
-        // required: true,
       },
     },
   ],

@@ -339,6 +339,35 @@ export const getMatch = async (req, res) => {
       return res.status(404).json({ message: "Match not found" });
     }
 
+    let matchDate = moment.tz(match.match_date, "YYYY-MM-DD", match.time_zone);
+
+    const matchTime = moment.tz(match.match_time, "HH:mm", match.match_time);
+    const matchTimeStr = matchTime.format("HH:mm");
+
+    const currentDate = moment()
+      .startOf("day")
+      .format("YYYY-MM-DDTHH:mm:ss[Z]");
+
+    const currentTime = moment().format("HH:mm");
+
+    const matchHours = parseInt(matchTimeStr.split(":")[0]);
+    const matchMinutes = parseInt(matchTimeStr.split(":")[1]);
+
+    const currentHours = parseInt(currentTime.split(":")[0]);
+    const currentMinutes = parseInt(currentTime.split(":")[1]);
+
+    if (matchDate.isBefore(currentDate)) {
+      console.log("date");
+      match.reported = true;
+    } else if (matchDate.isSame(currentDate)) {
+      if (
+        matchHours < currentHours ||
+        (matchHours === currentHours && matchMinutes < currentMinutes)
+      ) {
+        match.reported = true;
+      }
+    }
+
     let teamAScore = 0;
     let teamBScore = 0;
 

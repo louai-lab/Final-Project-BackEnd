@@ -36,6 +36,8 @@ const MatchSchema = new mongoose.Schema(
     },
     watcher_report: { type: String },
 
+    reported: { type: Boolean, default: false },
+
     linesman_one: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

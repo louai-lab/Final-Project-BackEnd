@@ -6,8 +6,6 @@ import MatchDetails from "../Models/MatchDetailsModel.js";
 export const getAllMatches = async (req, res) => {
   try {
     const userId = req.user?._id;
-
-    // console.log(req.user._id);
     const teamId = req.query.teamId;
 
     let matches;
@@ -151,6 +149,27 @@ export const getAllMatches = async (req, res) => {
 
       match.team_a.score = teamAScore;
       match.team_b.score = teamBScore;
+
+      const matchDate = moment(match.match_date).startOf("day");
+      const currentDate = moment().startOf("day");
+
+      const matchTime = moment.tz(match.match_time, "HH:mm", match.time_zone);
+      const currentTime = moment();
+
+      const matchHour = matchTime.hour();
+      const currentHour = currentTime.hour();
+
+      if (currentDate.diff(matchDate, "days") > 1) {
+        match.reported = true;
+      } else if (currentDate.diff(matchDate, "days") === 1) {
+        if (matchHour < currentHour) {
+          match.reported = true;
+        } else {
+          match.reported === false;
+        }
+      } else {
+        match.reported = false;
+      }
     }
 
     return res.status(200).json({ matches, matchCount });
@@ -291,6 +310,27 @@ export const getLastTwoCreatedMatches = async (req, res) => {
 
       match.team_a.score = teamAScore;
       match.team_b.score = teamBScore;
+
+      const matchDate = moment(match.match_date).startOf("day");
+      const currentDate = moment().startOf("day");
+
+      const matchTime = moment.tz(match.match_time, "HH:mm", match.time_zone);
+      const currentTime = moment();
+
+      const matchHour = matchTime.hour();
+      const currentHour = currentTime.hour();
+
+      if (currentDate.diff(matchDate, "days") > 1) {
+        match.reported = true;
+      } else if (currentDate.diff(matchDate, "days") === 1) {
+        if (matchHour < currentHour) {
+          match.reported = true;
+        } else {
+          match.reported === false;
+        }
+      } else {
+        match.reported = false;
+      }
     }
 
     return res.status(200).json(lastTwoMatches);
@@ -339,33 +379,25 @@ export const getMatch = async (req, res) => {
       return res.status(404).json({ message: "Match not found" });
     }
 
-    let matchDate = moment.tz(match.match_date, "YYYY-MM-DD", match.time_zone);
+    const matchDate = moment(match.match_date).startOf("day");
+    const currentDate = moment().startOf("day");
 
-    const matchTime = moment.tz(match.match_time, "HH:mm", match.match_time);
-    const matchTimeStr = matchTime.format("HH:mm");
+    const matchTime = moment.tz(match.match_time, "HH:mm", match.time_zone);
+    const currentTime = moment();
 
-    const currentDate = moment()
-      .startOf("day")
-      .format("YYYY-MM-DDTHH:mm:ss[Z]");
+    const matchHour = matchTime.hour();
+    const currentHour = currentTime.hour();
 
-    const currentTime = moment().format("HH:mm");
-
-    const matchHours = parseInt(matchTimeStr.split(":")[0]);
-    const matchMinutes = parseInt(matchTimeStr.split(":")[1]);
-
-    const currentHours = parseInt(currentTime.split(":")[0]);
-    const currentMinutes = parseInt(currentTime.split(":")[1]);
-
-    if (matchDate.isBefore(currentDate)) {
-      console.log("date");
+    if (currentDate.diff(matchDate, "days") > 1) {
       match.reported = true;
-    } else if (matchDate.isSame(currentDate)) {
-      if (
-        matchHours < currentHours ||
-        (matchHours === currentHours && matchMinutes < currentMinutes)
-      ) {
+    } else if (currentDate.diff(matchDate, "days") === 1) {
+      if (matchHour < currentHour) {
         match.reported = true;
+      } else {
+        match.reported === false;
       }
+    } else {
+      match.reported = false;
     }
 
     let teamAScore = 0;

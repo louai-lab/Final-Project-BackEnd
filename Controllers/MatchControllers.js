@@ -2,11 +2,13 @@ import moment from "moment-timezone";
 import Match from "../Models/MatchModel.js";
 import MatchDetails from "../Models/MatchDetailsModel.js";
 
+
 // Get All the Matches
 export const getAllMatches = async (req, res) => {
+  // console.log('test')
   try {
     const userId = req.user?._id;
-    const teamId = req.query.teamId;
+    const teamId = req.query?.teamId;
 
     let matches;
 

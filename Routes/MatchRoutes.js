@@ -3,7 +3,6 @@ import {
   createMatch,
   deleteMatch,
   getAllMatches,
-  // getLastCreatedMatch,
   getLastTwoCreatedMatches,
   getMatch,
   updateMatch,

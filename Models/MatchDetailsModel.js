@@ -1,14 +1,21 @@
 import mongoose from "mongoose";
 
 const MatchDetailsSchema = new mongoose.Schema({
-  // report: {
-  //   type: String,
-  // },
   details: [
     {
       type: {
         type: String,
-        enum: ["goal", "yellow_card", "red_card", "substitution", "HT"],
+        enum: [
+          "goal",
+          "yellow_card",
+          "red_card",
+          "substitution",
+          "HT",
+          "full_time",
+          "firstExtraTime",
+          "secondExtraTime",
+          "penalties",
+        ],
       },
       team: {
         type: mongoose.Schema.Types.ObjectId,
@@ -25,6 +32,12 @@ const MatchDetailsSchema = new mongoose.Schema({
       },
       minute: {
         type: Number,
+      },
+
+      // this field is just for penalties situation
+      penalty: {
+        type: String,
+        enum: ["scored", "missed"],
       },
     },
   ],

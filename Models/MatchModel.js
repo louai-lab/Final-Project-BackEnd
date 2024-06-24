@@ -18,10 +18,14 @@ const MatchSchema = new mongoose.Schema(
     team_a: {
       team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
       score: { type: Number, default: 0 },
+      scoreHT: { type: Number, default: 0 },
+      scorePenalties: { type: Number, default: 0 },
     },
     team_b: {
       team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
       score: { type: Number, default: 0 },
+      scoreHT: { type: Number, default: 0 },
+      scorePenalties: { type: Number, default: 0 },
     },
     referee: {
       type: mongoose.Schema.Types.ObjectId,
@@ -66,6 +70,22 @@ const MatchSchema = new mongoose.Schema(
     match_time: {
       type: String,
       required: true,
+    },
+    // isFullTime: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // isFirstExtraTime: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // isSecondExtraTime: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    isPenalties: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 import Match from "../Models/MatchModel.js";
 import MatchDetails from "../Models/MatchDetailsModel.js";
-
+import mongoose from "mongoose";
 
 // Get All the Matches
 export const getAllMatches = async (req, res) => {
@@ -312,27 +312,6 @@ export const getLastTwoCreatedMatches = async (req, res) => {
 
       match.team_a.score = teamAScore;
       match.team_b.score = teamBScore;
-
-      const matchDate = moment(match.match_date).startOf("day");
-      const currentDate = moment().startOf("day");
-
-      const matchTime = moment.tz(match.match_time, "HH:mm", match.time_zone);
-      const currentTime = moment();
-
-      const matchHour = matchTime.hour();
-      const currentHour = currentTime.hour();
-
-      if (currentDate.diff(matchDate, "days") > 1) {
-        match.reported = true;
-      } else if (currentDate.diff(matchDate, "days") === 1) {
-        if (matchHour < currentHour) {
-          match.reported = true;
-        } else {
-          match.reported === false;
-        }
-      } else {
-        match.reported = false;
-      }
     }
 
     return res.status(200).json(lastTwoMatches);
@@ -343,6 +322,135 @@ export const getLastTwoCreatedMatches = async (req, res) => {
 };
 
 // Get a Match
+// export const getMatch = async (req, res) => {
+//   const id = req.params.id;
+//   try {
+//     const match = await Match.findById(id)
+//       .populate({
+//         path: "team_a.team",
+//         select: "name image",
+//         populate: {
+//           path: "players",
+//           select: "name",
+//         },
+//       })
+//       .populate({
+//         path: "team_b.team",
+//         select: "name image",
+//         populate: {
+//           path: "players",
+//           select: "name",
+//         },
+//       })
+//       .populate("referee", "firstName lastName role image")
+//       .populate("watcher", "firstName lastName role image")
+//       .populate("linesman_one", "firstName lastName role image")
+//       .populate("linesman_two", "firstName lastName role image")
+//       .populate({
+//         path: "detailsWatcher",
+//         populate: {
+//           path: "details.team details.playerIn details.playerOut",
+//           select: "name",
+//         },
+//       })
+//       .lean()
+//       .exec();
+
+//     if (!match) {
+//       return res.status(404).json({ message: "Match not found" });
+//     }
+
+//     let teamAScore = 0;
+//     let teamBScore = 0;
+
+//     if (match.detailsWatcher && match.detailsWatcher.details) {
+//       const events = match.detailsWatcher.details;
+
+//       events.forEach((event) => {
+//         if (event.type === "goal" && event.team) {
+//           const scoringTeam =
+//             event.team.name === match.team_a.team.name ? "team_a" : "team_b";
+//           if (scoringTeam === "team_a") {
+//             teamAScore += 1;
+//           } else {
+//             teamBScore += 1;
+//           }
+//         }
+//       });
+//     }
+
+//     match.team_a.score = teamAScore;
+//     match.team_b.score = teamBScore;
+
+//     const matchDate = new Date(match.match_date);
+//     const currentDate = new Date();
+
+//     const matchYear = matchDate.getFullYear();
+//     const matchMonth = matchDate.getMonth() + 1;
+//     const matchDay = matchDate.getDate();
+//     const matchHour = match.match_time.split(":")[0];
+//     const matchMinute = match.match_time.split(":")[1];
+
+//     const currentYear = currentDate.getFullYear();
+//     const currentMonth = currentDate.getMonth() + 1;
+//     const currentDay = currentDate.getDate();
+//     const currentHour = currentDate.getHours();
+//     const currentMinute = currentDate.getMinutes();
+
+//     const convertTo12HourFormat = (hour) => {
+//       return hour % 12 === 0 ? 12 : hour % 12;
+//     };
+
+//     const matchHour12 = convertTo12HourFormat(matchHour);
+//     const currentHour12 = convertTo12HourFormat(currentHour);
+
+//     if (currentYear > matchYear) {
+//       match.reported = true;
+//     } else if (currentYear === matchYear) {
+//       if (currentMonth > matchMonth) {
+//         match.reported = true;
+//       } else if (currentMonth === matchMonth) {
+//         const dayDifference = currentDay - matchDay;
+//         if (dayDifference > 1) {
+//           match.reported = true;
+//         } else if (dayDifference === 1) {
+//           if (currentHour12 > matchHour12) {
+//             match.reported = true;
+//           } else if (currentHour12 === matchHour12) {
+//             if (currentMinute > matchMinute) {
+//               match.reported = true;
+//             } else {
+//               match.reported = false;
+//             }
+//           } else {
+//             match.reported = false;
+//           }
+//         } else {
+//           match.reported = false;
+//         }
+//       } else {
+//         match.reported = false;
+//       }
+//     }
+
+//     // console.log(`Match year: ${matchYear}`);
+//     // console.log(`Current year: ${currentYear}`);
+//     // console.log(`Match month: ${matchMonth}`);
+//     // console.log(`Current month: ${currentMonth}`);
+//     // console.log(`Match day: ${matchDay}`);
+//     // console.log(`Current day: ${currentDay}`);
+//     // console.log(`Match hour: ${matchHour12}`);
+//     // console.log(`Current hour: ${currentHour12}`);
+//     // console.log(`Current Minute ${currentMinute}`);
+//     // console.log(`Match minute ${matchMinute}`);
+
+//     return res.status(200).json(match);
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).send("Internal Server Error");
+//   }
+// };
+
 export const getMatch = async (req, res) => {
   const id = req.params.id;
   try {
@@ -381,48 +489,111 @@ export const getMatch = async (req, res) => {
       return res.status(404).json({ message: "Match not found" });
     }
 
-    const matchDate = moment(match.match_date).startOf("day");
-    const currentDate = moment().startOf("day");
-
-    const matchTime = moment.tz(match.match_time, "HH:mm", match.time_zone);
-    const currentTime = moment();
-
-    const matchHour = matchTime.hour();
-    const currentHour = currentTime.hour();
-
-    if (currentDate.diff(matchDate, "days") > 1) {
-      match.reported = true;
-    } else if (currentDate.diff(matchDate, "days") === 1) {
-      if (matchHour < currentHour) {
-        match.reported = true;
-      } else {
-        match.reported === false;
-      }
-    } else {
-      match.reported = false;
-    }
+    // console.log(match)
 
     let teamAScore = 0;
     let teamBScore = 0;
+    let teamAFirstHalfGoals = 0;
+    let teamBFirstHalfGoals = 0;
+    let foundHT = false;
+    let teamAPenaltyGoals = 0;
+    let teamBPenaltyGoals = 0;
+    let foundPenalties = false;
 
     if (match.detailsWatcher && match.detailsWatcher.details) {
       const events = match.detailsWatcher.details;
 
-      events.forEach((event) => {
+      for (const event of events) {
+        // console.log(event);
         if (event.type === "goal" && event.team) {
           const scoringTeam =
             event.team.name === match.team_a.team.name ? "team_a" : "team_b";
+
           if (scoringTeam === "team_a") {
-            teamAScore += 1;
+            if (foundPenalties && event.penalty === "scored") {
+              teamAPenaltyGoals += 1;
+            } else {
+              teamAScore += 1;
+              if (!foundHT) teamAFirstHalfGoals += 1;
+            }
           } else {
-            teamBScore += 1;
+            if (foundPenalties && event.penalty === "scored") {
+              teamBPenaltyGoals += 1;
+            } else {
+              teamBScore += 1;
+              if (!foundHT) teamBFirstHalfGoals += 1;
+            }
           }
         }
-      });
+
+        if (event.type === "HT") {
+          foundHT = true;
+        }
+
+        if (event.type === "penalties") {
+          foundPenalties = true;
+          match.isPenalties = true;
+        }
+      }
     }
 
     match.team_a.score = teamAScore;
     match.team_b.score = teamBScore;
+    match.team_a.scoreHT = teamAFirstHalfGoals;
+    match.team_b.scoreHT = teamBFirstHalfGoals;
+    match.team_a.scorePenalties = teamAPenaltyGoals;
+    match.team_b.scorePenalties = teamBPenaltyGoals;
+
+    const matchDate = new Date(match.match_date);
+    const currentDate = new Date();
+
+    const matchYear = matchDate.getFullYear();
+    const matchMonth = matchDate.getMonth() + 1;
+    const matchDay = matchDate.getDate();
+    const matchHour = match.match_time.split(":")[0];
+    const matchMinute = match.match_time.split(":")[1];
+
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentDay = currentDate.getDate();
+    const currentHour = currentDate.getHours();
+    const currentMinute = currentDate.getMinutes();
+
+    const convertTo12HourFormat = (hour) => {
+      return hour % 12 === 0 ? 12 : hour % 12;
+    };
+
+    const matchHour12 = convertTo12HourFormat(matchHour);
+    const currentHour12 = convertTo12HourFormat(currentHour);
+
+    if (currentYear > matchYear) {
+      match.reported = true;
+    } else if (currentYear === matchYear) {
+      if (currentMonth > matchMonth) {
+        match.reported = true;
+      } else if (currentMonth === matchMonth) {
+        const dayDifference = currentDay - matchDay;
+        if (dayDifference > 1) {
+          match.reported = true;
+        } else if (dayDifference === 1) {
+          if (currentHour12 > matchHour12) {
+            match.reported = true;
+          } else if (currentHour12 === matchHour12) {
+            if (currentMinute > matchMinute) {
+              match.reported = true;
+            } else {
+              match.reported = false;
+            }
+          } else {
+            match.reported = false;
+          }
+        } else {
+          match.reported = false;
+        }
+      } else {
+        match.reported = false;
+      }
+    }
 
     return res.status(200).json(match);
   } catch (error) {

@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb";
 export const getAllTeam = async (req, res) => {
   try {
     const teams = await Team.find()
-      .populate("players", "name position team")
+      .populate("players", "name team image idCard dateOfBirth motherName")
       .sort({ createdAt: -1 })
       .exec();
     res.status(201).json(teams);
@@ -23,7 +23,7 @@ export const getOneTeam = async (req, res) => {
 
   try {
     const team = await Team.findById(id)
-      .populate("players", "name position team")
+      .populate("players", "name team image idCard dateOfBirth motherName")
       .exec();
 
     if (team) {
@@ -166,8 +166,8 @@ export const updateTeam = async (req, res) => {
     return res.status(200).json(existingTeam);
   } catch (error) {
     console.error(error);
-    const imagePath = `public/images/${req.file.filename}`;
-    fs.unlinkSync(imagePath);
+    // const imagePath = `public/images/${req.file.filename}`;
+    // fs.unlinkSync(imagePath);
     return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };

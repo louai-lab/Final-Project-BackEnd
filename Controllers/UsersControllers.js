@@ -59,7 +59,6 @@ export const getAllLinesman = async (req, res) => {
 };
 
 // Get one User
-
 export const getOneUser = async (req, res) => {
   const userId = req.user.userId;
 

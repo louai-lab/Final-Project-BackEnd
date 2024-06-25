@@ -42,47 +42,6 @@ export const createMatchDetails = async (req, res) => {
 // update a matchDetails , && add an object (new detail in the details array) ,
 // it is just pass the MatchDetails Id , and in the body the detail (goal , ...)
 // to add an object to array of details
-// export const updateMatchDetails = async (req, res) => {
-//   const id = req.params.id;
-
-//   const { type, team, minute, playerIn, playerOut } = req.body;
-
-//   try {
-//     let newDetailsObject;
-
-//     if (type === "substitution") {
-//       newDetailsObject = {
-//         type,
-//         team,
-//         minute,
-//         playerIn: playerIn,
-//         playerOut: playerOut,
-//       };
-//     } else {
-//       newDetailsObject = {
-//         type,
-//         team,
-//         minute,
-//         playerIn: playerIn,
-//       };
-//     }
-
-//     const updatedMatchDetails = await MatchDetails.findOneAndUpdate(
-//       { _id: id },
-//       { $push: { details: newDetailsObject } },
-//       { new: true }
-//     )
-//       .populate("details.team", "name")
-//       .populate("details.playerIn details.playerOut", "name")
-//       .exec();
-
-//     return res.status(200).json(updatedMatchDetails);
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).send(error);
-//   }
-// };
-
 export const updateMatchDetails = async (req, res) => {
   const id = req.params.id;
 
@@ -111,7 +70,7 @@ export const updateMatchDetails = async (req, res) => {
       { new: true }
     )
       .populate("details.team", "name")
-      .populate("details.playerIn details.playerOut", "name")
+      .populate("details.playerIn details.playerOut", "name image")
       .exec();
 
     return res.status(200).json(updatedMatchDetails);

@@ -7,13 +7,19 @@ const PlayerSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    position: {
-      type: String,
-      required: true,
-    },
     team: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Team",
+    },
+    image: { type: String },
+    idCard: {
+      type: Number,
+    },
+    dateOfBirth: {
+      type: String,
+    },
+    motherName: {
+      type: String,
     },
   },
   {

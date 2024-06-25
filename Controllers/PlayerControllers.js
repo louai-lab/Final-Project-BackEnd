@@ -1,6 +1,7 @@
 import { query } from "express";
 import Player from "../Models/PlayerModel.js";
 import Team from "../Models/TeamModel.js";
+import fs from "fs";
 
 // Get All Players
 export const getAllPlayers = async (req, res) => {
@@ -55,16 +56,28 @@ export const getPlayersWithoutTeam = async (req, res) => {
 
 // Add A Player
 export const addPlayer = async (req, res) => {
-  const { name, position, team } = req.body;
+  const { name, team, idCard, dateOfBirth, motherName } = req.body;
 
   try {
-    if (!name || !position) {
+    if (!name) {
+      const path = `public/images/${req.file.filename}`;
+      fs.unlinkSync(path);
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    if (!req.file) {
+      return res.status(400).json({ error: "upload an image" });
+    }
+
+    const image = req.file.filename;
+
     const newPlayerData = {
       name,
-      position,
+      team,
+      idCard,
+      image,
+      dateOfBirth,
+      motherName,
     };
 
     if (team) {
@@ -89,6 +102,8 @@ export const addPlayer = async (req, res) => {
     res.status(201).json(populatedPlayer);
   } catch (error) {
     console.log(error);
+    const path = `public/images/${req.file.filename}`;
+    fs.unlinkSync(path);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -97,7 +112,7 @@ export const addPlayer = async (req, res) => {
 export const updatePlayer = async (req, res) => {
   const id = req.params.id;
 
-  const { name, position, team } = req.body;
+  const { name, team, idCard, dateOfBirth, motherName } = req.body;
 
   try {
     const existingPlayer = await Player.findById(id);
@@ -109,7 +124,24 @@ export const updatePlayer = async (req, res) => {
     const currentTeam = existingPlayer.team;
 
     if (name) existingPlayer.name = name;
-    if (position) existingPlayer.position = position;
+    if (idCard) existingPlayer.idCard = idCard;
+    if (dateOfBirth) existingPlayer.dateOfBirth = dateOfBirth;
+    if (motherName) existingPlayer.motherName = motherName;
+
+    const oldImagePath = `public/images/${existingPlayer.image}`;
+
+    if (req.file) {
+      existingPlayer.image = req.file.filename;
+      // console.log(req.file.filename);
+
+      // fs.unlinkSync(oldImagePath, (err) => {
+      //   if (err) {
+      //     return res
+      //       .status(500)
+      //       .json({ error: `error deleting the old image` });
+      //   }
+      // });
+    }
 
     if (team !== undefined) {
       if (team === null || team === "") {
@@ -158,7 +190,9 @@ export const updatePlayer = async (req, res) => {
 
     return res.status(200).json(updatedPlayer);
   } catch (error) {
-    console.error(error);
+    console.log(error);
+    const path = `public/images/${req.file.filename}`;
+    fs.unlinkSync(path);
     return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };
@@ -173,6 +207,15 @@ export const deletePlayer = async (req, res) => {
     if (!existingPlayer) {
       return res.status(404).json({ error: "Player not found" });
     }
+
+    const imagePath = `public/images/${existingPlayer.image}`;
+    fs.unlinkSync(imagePath, (err) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ error: "Error deleting the user's image" });
+      }
+    });
 
     await Player.deleteOne({ _id: id });
 

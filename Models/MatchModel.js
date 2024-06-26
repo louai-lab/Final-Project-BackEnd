@@ -12,9 +12,13 @@ const MatchSchema = new mongoose.Schema(
     //   required: true,
     // },
     season: {
-      type: Number,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Season",
     },
+    // season: {
+    //   type: Number,
+    //   required: true,
+    // },
     pitch: {
       type: String,
       required: true,

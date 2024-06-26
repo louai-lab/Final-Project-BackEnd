@@ -3,187 +3,14 @@ import Match from "../Models/MatchModel.js";
 import MatchDetails from "../Models/MatchDetailsModel.js";
 import mongoose from "mongoose";
 
-// Get All the Matches
-// export const getAllMatches = async (req, res) => {
-//   try {
-//     const userId = req.user?._id;
-//     const teamId = req.query?.teamId;
-
-//     let matches;
-
-//     if (req.user?.role === "watcher") {
-//       matches = await Match.find({ watcher: userId })
-//         .sort({ createdAt: -1 })
-//         .populate({
-//           path: "team_a.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate({
-//           path: "team_b.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate("referee", "firstName lastName role image")
-//         .populate("watcher", "firstName lastName role image")
-//         .populate("linesman_one", "firstName lastName role image")
-//         .populate("linesman_two", "firstName lastName role image")
-//         .populate({
-//           path: "detailsWatcher",
-//           populate: {
-//             path: "details.team details.playerIn details.playerOut",
-//             select: "name",
-//           },
-//         })
-//         .lean()
-//         .exec();
-//     } else if (req.user?.role === "referee") {
-//       matches = await Match.find({ referee: userId })
-//         .sort({ createdAt: -1 })
-//         .populate({
-//           path: "team_a.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate({
-//           path: "team_b.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate("referee", "firstName lastName role image")
-//         .populate("watcher", "firstName lastName role image")
-//         .populate("linesman_one", "firstName lastName role image")
-//         .populate("linesman_two", "firstName lastName role image")
-//         .populate({
-//           path: "detailsWatcher",
-//           populate: {
-//             path: "details.team details.playerIn details.playerOut",
-//             select: "name",
-//           },
-//         })
-//         .lean()
-//         .exec();
-//     } else {
-//       matches = await Match.find()
-//         .sort({ createdAt: -1 })
-//         .populate({
-//           path: "team_a.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate({
-//           path: "team_b.team",
-//           select: "name image",
-//           populate: {
-//             path: "players",
-//             select: "name",
-//           },
-//         })
-//         .populate("referee", "firstName lastName role image")
-//         .populate("watcher", "firstName lastName role image")
-//         .populate("linesman_one", "firstName lastName role image")
-//         .populate("linesman_two", "firstName lastName role image")
-//         .populate({
-//           path: "detailsWatcher",
-//           populate: {
-//             path: "details.team details.playerIn details.playerOut",
-//             select: "name",
-//           },
-//         })
-//         .lean()
-//         .exec();
-//     }
-
-//     const matchCount = matches.length;
-
-//     if (teamId) {
-//       matches = matches.filter((match) => {
-//         return (
-//           match.team_a.team._id.toString() === teamId ||
-//           match.team_b.team._id.toString() === teamId
-//         );
-//       });
-//     }
-
-//     const { offset, limit } = req;
-
-//     matches = matches.slice(offset, offset + limit);
-
-//     if (!matches) {
-//       return res.status(404).json({ message: "No matches found" });
-//     }
-
-//     for (const match of matches) {
-//       let teamAScore = 0;
-//       let teamBScore = 0;
-
-//       if (match.detailsWatcher && match.detailsWatcher.details) {
-//         const events = match.detailsWatcher.details;
-
-//         events.forEach((event) => {
-//           if (event.type === "goal" && event.team) {
-//             const scoringTeamId = event.team._id;
-
-//             if (scoringTeamId.equals(match.team_a.team._id)) {
-//               teamAScore += 1;
-//             } else if (scoringTeamId.equals(match.team_b.team._id)) {
-//               teamBScore += 1;
-//             }
-//           }
-//         });
-//       }
-
-//       match.team_a.score = teamAScore;
-//       match.team_b.score = teamBScore;
-
-//       const matchDate = moment(match.match_date).startOf("day");
-//       const currentDate = moment().startOf("day");
-
-//       const matchTime = moment.tz(match.match_time, "HH:mm", match.time_zone);
-//       const currentTime = moment();
-
-//       const matchHour = matchTime.hour();
-//       const currentHour = currentTime.hour();
-
-//       if (currentDate.diff(matchDate, "days") > 1) {
-//         match.reported = true;
-//       } else if (currentDate.diff(matchDate, "days") === 1) {
-//         if (matchHour < currentHour) {
-//           match.reported = true;
-//         } else {
-//           match.reported === false;
-//         }
-//       } else {
-//         match.reported = false;
-//       }
-//     }
-
-//     return res.status(200).json({ matches, matchCount });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).send("Internal Server Error");
-//   }
-// };
-
+// Get All Matches
 export const getAllMatches = async (req, res) => {
   try {
     const userId = req.user?._id;
     const teamId = req.query?.teamId;
+    const titleId = req.query?.titleId;
+
+    // console.log(titleId);
 
     let matches;
 
@@ -211,6 +38,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
+        .populate("season", "seasonName")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -244,6 +72,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
+        .populate("season", "seasonName")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -277,6 +106,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
+        .populate("season", "seasonName")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -288,8 +118,6 @@ export const getAllMatches = async (req, res) => {
         .exec();
     }
 
-    const matchCount = matches.length;
-
     if (teamId) {
       matches = matches.filter((match) => {
         return (
@@ -298,6 +126,14 @@ export const getAllMatches = async (req, res) => {
         );
       });
     }
+
+    if (titleId) {
+      matches = matches.filter((match) => {
+        return match.title._id.toString() === titleId;
+      });
+    }
+
+    const matchCount = matches.length;
 
     const { offset, limit } = req;
 
@@ -421,6 +257,7 @@ export const getLastTwoCreatedMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
+        .populate("season", "seasonName")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -455,6 +292,7 @@ export const getLastTwoCreatedMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
+        .populate("season", "seasonName")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -489,6 +327,7 @@ export const getLastTwoCreatedMatches = async (req, res) => {
         .populate("linesman_one", "firstName lastName role image")
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
+        .populate("season", "seasonName")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -558,6 +397,7 @@ export const getMatch = async (req, res) => {
       .populate("linesman_one", "firstName lastName role image")
       .populate("linesman_two", "firstName lastName role image")
       .populate("title", "name image")
+      .populate("season", "seasonName")
       .populate({
         path: "detailsWatcher",
         populate: {
@@ -766,6 +606,7 @@ export const createMatch = async (req, res) => {
       .populate("linesman_one", "firstName lastName role")
       .populate("linesman_two", "firstName lastName role")
       .populate("title", "name image")
+      .populate("season", "seasonName")
       .populate({
         path: "detailsWatcher",
         populate: {
@@ -828,6 +669,7 @@ export const updateMatch = async (req, res) => {
       .populate("linesman_one", "firstName lastName role image")
       .populate("linesman_two", "firstName lastName role image")
       .populate("title", "name image")
+      .populate("season", "seasonName")
       .populate({
         path: "detailsWatcher",
         populate: {

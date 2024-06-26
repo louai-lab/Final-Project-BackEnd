@@ -28,6 +28,9 @@ export const addTitle = async (req, res) => {
 
     const image = req.file.filename;
 
+    console.log(name);
+    console.log(image);
+
     const newTitle = await Title.create({
       name,
       image,

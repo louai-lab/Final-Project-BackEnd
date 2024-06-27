@@ -9,6 +9,8 @@ export const getAllMatches = async (req, res) => {
     const userId = req.user?._id;
     const teamId = req.query?.teamId;
     const titleId = req.query?.titleId;
+    const seasonId = req.query?.seasonId;
+    const pitchId = req.query?.pitchId;
 
     // console.log(titleId);
 
@@ -22,7 +24,7 @@ export const getAllMatches = async (req, res) => {
           select: "name image",
           populate: {
             path: "players",
-            select: "name image",
+            select: "name image tShirtNumber idCard dateOfBirth motherName",
           },
         })
         .populate({
@@ -30,7 +32,7 @@ export const getAllMatches = async (req, res) => {
           select: "name image",
           populate: {
             path: "players",
-            select: "name image",
+            select: "name image tShirtNumber idCard dateOfBirth motherName",
           },
         })
         .populate("referee", "firstName lastName role image")
@@ -39,6 +41,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
         .populate("season", "seasonName")
+        .populate("pitch", "name location image")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -56,7 +59,7 @@ export const getAllMatches = async (req, res) => {
           select: "name image",
           populate: {
             path: "players",
-            select: "name image",
+            select: "name image tShirtNumber idCard dateOfBirth motherName",
           },
         })
         .populate({
@@ -64,7 +67,7 @@ export const getAllMatches = async (req, res) => {
           select: "name image",
           populate: {
             path: "players",
-            select: "name image",
+            select: "name image tShirtNumber idCard dateOfBirth motherName",
           },
         })
         .populate("referee", "firstName lastName role image")
@@ -73,6 +76,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
         .populate("season", "seasonName")
+        .populate("pitch", "name location image")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -90,7 +94,7 @@ export const getAllMatches = async (req, res) => {
           select: "name image",
           populate: {
             path: "players",
-            select: "name image",
+            select: "name image tShirtNumber idCard dateOfBirth motherName",
           },
         })
         .populate({
@@ -98,7 +102,7 @@ export const getAllMatches = async (req, res) => {
           select: "name image",
           populate: {
             path: "players",
-            select: "name image",
+            select: "name image tShirtNumber idCard dateOfBirth motherName",
           },
         })
         .populate("referee", "firstName lastName role image")
@@ -107,6 +111,7 @@ export const getAllMatches = async (req, res) => {
         .populate("linesman_two", "firstName lastName role image")
         .populate("title", "name image")
         .populate("season", "seasonName")
+        .populate("pitch", "name location image")
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -130,6 +135,18 @@ export const getAllMatches = async (req, res) => {
     if (titleId) {
       matches = matches.filter((match) => {
         return match.title._id.toString() === titleId;
+      });
+    }
+
+    if (seasonId) {
+      matches = matches.filter((match) => {
+        return match.season._id.toString() === seasonId;
+      });
+    }
+
+    if (pitchId) {
+      matches = matches.filter((match) => {
+        return match.pitch._id.toString() === pitchId;
       });
     }
 
@@ -225,152 +242,6 @@ export const getAllMatches = async (req, res) => {
   }
 };
 
-// Get the last 2 matches
-export const getLastTwoCreatedMatches = async (req, res) => {
-  try {
-    const userId = req.user?._id;
-
-    let lastTwoMatches;
-
-    if (req.user?.role === "watcher") {
-      lastTwoMatches = await Match.find({ watcher: userId })
-        .sort({ createdAt: -1 })
-        .limit(2)
-        .populate({
-          path: "team_a.team",
-          select: "name image",
-          populate: {
-            path: "players",
-            select: "name image",
-          },
-        })
-        .populate({
-          path: "team_b.team",
-          select: "name image",
-          populate: {
-            path: "players",
-            select: "name image",
-          },
-        })
-        .populate("referee", "firstName lastName role image")
-        .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role image")
-        .populate("linesman_two", "firstName lastName role image")
-        .populate("title", "name image")
-        .populate("season", "seasonName")
-        .populate({
-          path: "detailsWatcher",
-          populate: {
-            path: "details.team details.playerIn details.playerOut",
-            select: "name image",
-          },
-        })
-        .lean()
-        .exec();
-    } else if (req.user?.role === "referee") {
-      lastTwoMatches = await Match.find({ referee: userId })
-        .sort({ createdAt: -1 })
-        .limit(2)
-        .populate({
-          path: "team_a.team",
-          select: "name image",
-          populate: {
-            path: "players",
-            select: "name image",
-          },
-        })
-        .populate({
-          path: "team_b.team",
-          select: "name image",
-          populate: {
-            path: "players",
-            select: "name image",
-          },
-        })
-        .populate("referee", "firstName lastName role image")
-        .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role image")
-        .populate("linesman_two", "firstName lastName role image")
-        .populate("title", "name image")
-        .populate("season", "seasonName")
-        .populate({
-          path: "detailsWatcher",
-          populate: {
-            path: "details.team details.playerIn details.playerOut",
-            select: "name image",
-          },
-        })
-        .lean()
-        .exec();
-    } else {
-      lastTwoMatches = await Match.find()
-        .sort({ createdAt: -1 })
-        .limit(2)
-        .populate({
-          path: "team_a.team",
-          select: "name image",
-          populate: {
-            path: "players",
-            select: "name image",
-          },
-        })
-        .populate({
-          path: "team_b.team",
-          select: "name image",
-          populate: {
-            path: "players",
-            select: "name image",
-          },
-        })
-        .populate("referee", "firstName lastName role image")
-        .populate("watcher", "firstName lastName role image")
-        .populate("linesman_one", "firstName lastName role image")
-        .populate("linesman_two", "firstName lastName role image")
-        .populate("title", "name image")
-        .populate("season", "seasonName")
-        .populate({
-          path: "detailsWatcher",
-          populate: {
-            path: "details.team details.playerIn details.playerOut",
-            select: "name image",
-          },
-        })
-        .lean()
-        .exec();
-    }
-
-    // Update scores for each match
-    for (const match of lastTwoMatches) {
-      let teamAScore = 0;
-      let teamBScore = 0;
-
-      if (match.details && match.details.details) {
-        const events = match.details.details;
-
-        events.forEach((event) => {
-          if (event.type === "goal" && event.team) {
-            const scoringTeamId = event.team._id;
-
-            if (scoringTeamId.equals(match.team_a.team._id)) {
-              teamAScore += 1;
-            } else if (scoringTeamId.equals(match.team_b.team._id)) {
-              teamBScore += 1;
-            }
-          }
-        });
-      }
-
-      match.team_a.score = teamAScore;
-      match.team_b.score = teamBScore;
-    }
-
-    return res.status(200).json(lastTwoMatches);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send("Internal Server Error");
-  }
-};
-
 // Get a Match
 export const getMatch = async (req, res) => {
   const id = req.params.id;
@@ -381,7 +252,7 @@ export const getMatch = async (req, res) => {
         select: "name image",
         populate: {
           path: "players",
-          select: "name image",
+          select: "name image tShirtNumber idCard dateOfBirth motherName",
         },
       })
       .populate({
@@ -389,7 +260,7 @@ export const getMatch = async (req, res) => {
         select: "name image",
         populate: {
           path: "players",
-          select: "name image",
+          select: "name image tShirtNumber idCard dateOfBirth motherName",
         },
       })
       .populate("referee", "firstName lastName role image")
@@ -398,6 +269,7 @@ export const getMatch = async (req, res) => {
       .populate("linesman_two", "firstName lastName role image")
       .populate("title", "name image")
       .populate("season", "seasonName")
+      .populate("pitch", "name location image")
       .populate({
         path: "detailsWatcher",
         populate: {
@@ -590,7 +462,7 @@ export const createMatch = async (req, res) => {
         select: "name image",
         populate: {
           path: "players",
-          select: "name image",
+          select: "name image tShirtNumber idCard dateOfBirth motherName",
         },
       })
       .populate({
@@ -598,7 +470,7 @@ export const createMatch = async (req, res) => {
         select: "name image",
         populate: {
           path: "players",
-          select: "name image",
+          select: "name image tShirtNumber idCard dateOfBirth motherName",
         },
       })
       .populate("referee", "firstName lastName role image")
@@ -607,6 +479,7 @@ export const createMatch = async (req, res) => {
       .populate("linesman_two", "firstName lastName role")
       .populate("title", "name image")
       .populate("season", "seasonName")
+      .populate("pitch", "name location image")
       .populate({
         path: "detailsWatcher",
         populate: {
@@ -653,7 +526,7 @@ export const updateMatch = async (req, res) => {
         select: "name image",
         populate: {
           path: "players",
-          select: "name image",
+          select: "name image tShirtNumber idCard dateOfBirth motherName",
         },
       })
       .populate({
@@ -661,7 +534,7 @@ export const updateMatch = async (req, res) => {
         select: "name image",
         populate: {
           path: "players",
-          select: "name image",
+          select: "name image tShirtNumber idCard dateOfBirth motherName",
         },
       })
       .populate("referee", "firstName lastName role image")
@@ -670,6 +543,7 @@ export const updateMatch = async (req, res) => {
       .populate("linesman_two", "firstName lastName role image")
       .populate("title", "name image")
       .populate("season", "seasonName")
+      .populate("pitch", "name location image")
       .populate({
         path: "detailsWatcher",
         populate: {

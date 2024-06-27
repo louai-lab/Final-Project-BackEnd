@@ -19,6 +19,8 @@ export const addTitle = async (req, res) => {
 
   try {
     if (!name) {
+      const path = `public/images/${req.file.filename}`;
+      fs.unlinkSync(path);
       return res.status(400).json({ error: "Name is required" });
     }
 
@@ -28,8 +30,8 @@ export const addTitle = async (req, res) => {
 
     const image = req.file.filename;
 
-    console.log(name);
-    console.log(image);
+    // console.log(name);
+    // console.log(image);
 
     const newTitle = await Title.create({
       name,

@@ -56,7 +56,8 @@ export const getPlayersWithoutTeam = async (req, res) => {
 
 // Add A Player
 export const addPlayer = async (req, res) => {
-  const { name, team, idCard, dateOfBirth, motherName } = req.body;
+  const { name, tShirtNumber, team, idCard, dateOfBirth, motherName } =
+    req.body;
 
   try {
     if (!name) {
@@ -73,6 +74,7 @@ export const addPlayer = async (req, res) => {
 
     const newPlayerData = {
       name,
+      tShirtNumber,
       team,
       idCard,
       image,
@@ -112,7 +114,8 @@ export const addPlayer = async (req, res) => {
 export const updatePlayer = async (req, res) => {
   const id = req.params.id;
 
-  const { name, team, idCard, dateOfBirth, motherName } = req.body;
+  const { name, tShirtNumber, team, idCard, dateOfBirth, motherName } =
+    req.body;
 
   try {
     const existingPlayer = await Player.findById(id);
@@ -124,6 +127,7 @@ export const updatePlayer = async (req, res) => {
     const currentTeam = existingPlayer.team;
 
     if (name) existingPlayer.name = name;
+    if (tShirtNumber) existingPlayer.tShirtNumber = tShirtNumber;
     if (idCard) existingPlayer.idCard = idCard;
     if (dateOfBirth) existingPlayer.dateOfBirth = dateOfBirth;
     if (motherName) existingPlayer.motherName = motherName;

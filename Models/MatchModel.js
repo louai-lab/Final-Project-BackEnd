@@ -7,21 +7,13 @@ const MatchSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Title",
     },
-    // title: {
-    //   type: String,
-    //   required: true,
-    // },
     season: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Season",
     },
-    // season: {
-    //   type: Number,
-    //   required: true,
-    // },
     pitch: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pitch",
     },
     team_a: {
       team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
@@ -35,6 +27,18 @@ const MatchSchema = new mongoose.Schema(
       scoreHT: { type: Number, default: 0 },
       scorePenalties: { type: Number, default: 0 },
     },
+    lineUpTeamA: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Player",
+      },
+    ],
+    lineUpTeamB: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Player",
+      },
+    ],
     referee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

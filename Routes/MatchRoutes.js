@@ -3,7 +3,6 @@ import {
   createMatch,
   deleteMatch,
   getAllMatches,
-  getLastTwoCreatedMatches,
   getMatch,
   updateMatch,
 } from "../Controllers/MatchControllers.js";
@@ -13,7 +12,6 @@ import { paginate } from "../middleware/Pagination.js";
 const matchRoutes = express.Router();
 
 matchRoutes.get("/", paginate , auth, getAllMatches);
-matchRoutes.get("/getLastTwoCreatedMatches", auth, getLastTwoCreatedMatches);
 matchRoutes.get("/match/:id", getMatch);
 matchRoutes.post("/add", createMatch);
 matchRoutes.patch("/update/:id", updateMatch);

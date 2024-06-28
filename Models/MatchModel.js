@@ -27,13 +27,25 @@ const MatchSchema = new mongoose.Schema(
       scoreHT: { type: Number, default: 0 },
       scorePenalties: { type: Number, default: 0 },
     },
-    lineUpTeamA: [
+    startersTeamA: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",
       },
     ],
-    lineUpTeamB: [
+    substitutesteamA: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Player",
+      },
+    ],
+    startersTeamB: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Player",
+      },
+    ],
+    substitutesteamB: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",

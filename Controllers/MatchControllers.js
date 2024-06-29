@@ -178,16 +178,16 @@ export const getAllMatches = async (req, res) => {
             const scoringTeam =
               event.team.name === match.team_a.team.name ? "team_a" : "team_b";
 
-            if (scoringTeam === "team_a") {
-              if (foundPenalties && event.penalty === "scored") {
+            if (foundPenalties && event.penalty === "scored") {
+              if (scoringTeam === "team_a") {
                 teamAPenaltyGoals += 1;
               } else {
+                teamBPenaltyGoals += 1;
+              }
+            } else if (!foundPenalties) {
+              if (scoringTeam === "team_a") {
                 teamAScore += 1;
                 if (!foundHT) teamAFirstHalfGoals += 1;
-              }
-            } else {
-              if (foundPenalties && event.penalty === "scored") {
-                teamBPenaltyGoals += 1;
               } else {
                 teamBScore += 1;
                 if (!foundHT) teamBFirstHalfGoals += 1;
@@ -299,21 +299,20 @@ export const getMatch = async (req, res) => {
       const events = match.detailsWatcher.details;
 
       for (const event of events) {
-        // console.log(event);
         if (event.type === "goal" && event.team) {
           const scoringTeam =
             event.team.name === match.team_a.team.name ? "team_a" : "team_b";
 
-          if (scoringTeam === "team_a") {
-            if (foundPenalties && event.penalty === "scored") {
+          if (foundPenalties && event.penalty === "scored") {
+            if (scoringTeam === "team_a") {
               teamAPenaltyGoals += 1;
             } else {
+              teamBPenaltyGoals += 1;
+            }
+          } else if (!foundPenalties) {
+            if (scoringTeam === "team_a") {
               teamAScore += 1;
               if (!foundHT) teamAFirstHalfGoals += 1;
-            }
-          } else {
-            if (foundPenalties && event.penalty === "scored") {
-              teamBPenaltyGoals += 1;
             } else {
               teamBScore += 1;
               if (!foundHT) teamBFirstHalfGoals += 1;

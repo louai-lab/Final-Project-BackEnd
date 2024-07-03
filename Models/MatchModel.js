@@ -33,7 +33,7 @@ const MatchSchema = new mongoose.Schema(
         ref: "Player",
       },
     ],
-    substitutesteamA: [
+    substitutesTeamA: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",
@@ -45,7 +45,7 @@ const MatchSchema = new mongoose.Schema(
         ref: "Player",
       },
     ],
-    substitutesteamB: [
+    substitutesTeamB: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",

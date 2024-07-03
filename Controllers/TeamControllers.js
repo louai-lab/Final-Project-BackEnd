@@ -7,7 +7,10 @@ import { ObjectId } from "mongodb";
 export const getAllTeam = async (req, res) => {
   try {
     const teams = await Team.find()
-      .populate("players", "name team image idCard dateOfBirth motherName")
+      .populate(
+        "players",
+        "name team image tShirtNumber idCard dateOfBirth motherName"
+      )
       .sort({ createdAt: -1 })
       .exec();
     res.status(201).json(teams);
@@ -23,7 +26,10 @@ export const getOneTeam = async (req, res) => {
 
   try {
     const team = await Team.findById(id)
-      .populate("players", "name team image idCard dateOfBirth motherName")
+      .populate(
+        "players",
+        "name team image tShirtNumber idCard dateOfBirth motherName"
+      )
       .exec();
 
     if (team) {

@@ -42,6 +42,22 @@ export const getAllMatches = async (req, res) => {
         .populate("title", "name image")
         .populate("season", "seasonName")
         .populate("pitch", "name location image")
+        .populate(
+          "startersTeamA",
+          "name image tShirtNumber idCard dateOfBirth motherName"
+        )
+        .populate(
+          "substitutesTeamA",
+          "name image tShirtNumber idCard dateOfBirth motherName"
+        )
+        .populate(
+          "startersTeamB",
+          "name image tShirtNumber idCard dateOfBirth motherName"
+        )
+        .populate(
+          "substitutesTeamB",
+          "name image tShirtNumber idCard dateOfBirth motherName"
+        )
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -77,6 +93,10 @@ export const getAllMatches = async (req, res) => {
         .populate("title", "name image")
         .populate("season", "seasonName")
         .populate("pitch", "name location image")
+        .populate(
+          "startersTeamA",
+          "name image tShirtNumber idCard dateOfBirth motherName"
+        )
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -112,6 +132,10 @@ export const getAllMatches = async (req, res) => {
         .populate("title", "name image")
         .populate("season", "seasonName")
         .populate("pitch", "name location image")
+        .populate(
+          "startersTeamA",
+          "name image tShirtNumber idCard dateOfBirth motherName"
+        )
         .populate({
           path: "detailsWatcher",
           populate: {
@@ -270,6 +294,22 @@ export const getMatch = async (req, res) => {
       .populate("title", "name image")
       .populate("season", "seasonName")
       .populate("pitch", "name location image")
+      .populate(
+        "startersTeamA",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
+      .populate(
+        "substitutesTeamA",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
+      .populate(
+        "startersTeamB",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
+      .populate(
+        "substitutesTeamB",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
       .populate({
         path: "detailsWatcher",
         populate: {
@@ -500,7 +540,20 @@ export const updateMatch = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const { match_date, match_time, time_zone, ...otherUpdatedData } = req.body;
+    const {
+      match_date,
+      match_time,
+      time_zone,
+      addStartersTeamA,
+      removeStartersTeamA,
+      addSubstitutesTeamA,
+      removeSubstitutesTeamA,
+      addStartersTeamB,
+      removeStartersTeamB,
+      addSubstitutesTeamB,
+      removeSubstitutesTeamB,
+      ...otherUpdatedData
+    } = req.body;
 
     const existingMatch = await Match.findById(id);
     if (!existingMatch) {
@@ -513,6 +566,64 @@ export const updateMatch = async (req, res) => {
 
     if (match_time) {
       existingMatch.match_time = match_time;
+    }
+
+    if (addStartersTeamA && addStartersTeamA.length > 0) {
+      addStartersTeamA.forEach((playerId) => {
+        if (!existingMatch.startersTeamA.includes(playerId)) {
+          existingMatch.startersTeamA.push(playerId);
+        }
+      });
+    }
+
+    if (removeStartersTeamA && removeStartersTeamA.length > 0) {
+      existingMatch.startersTeamA = existingMatch.startersTeamA.filter(
+        (playerId) => !removeStartersTeamA.includes(playerId.toString())
+      );
+    }
+
+    if (addSubstitutesTeamA && addSubstitutesTeamA.length > 0) {
+      addSubstitutesTeamA.forEach((playerId) => {
+        if (!existingMatch.substitutesTeamA.includes(playerId)) {
+          existingMatch.substitutesTeamA.push(playerId);
+        }
+      });
+    }
+
+    if (removeSubstitutesTeamA && removeSubstitutesTeamA.length > 0) {
+      existingMatch.substitutesTeamA = existingMatch.substitutesTeamA.filter(
+        (playerId) => !removeSubstitutesTeamA.includes(playerId.toString())
+      );
+    }
+
+    ////
+
+    if (addStartersTeamB && addStartersTeamB.length > 0) {
+      addStartersTeamB.forEach((playerId) => {
+        if (!existingMatch.startersTeamB.includes(playerId)) {
+          existingMatch.startersTeamB.push(playerId);
+        }
+      });
+    }
+
+    if (removeStartersTeamB && removeStartersTeamB.length > 0) {
+      existingMatch.startersTeamB = existingMatch.startersTeamB.filter(
+        (playerId) => !removeStartersTeamB.includes(playerId.toString())
+      );
+    }
+
+    if (addSubstitutesTeamB && addSubstitutesTeamB.length > 0) {
+      addSubstitutesTeamB.forEach((playerId) => {
+        if (!existingMatch.substitutesTeamB.includes(playerId)) {
+          existingMatch.substitutesTeamB.push(playerId);
+        }
+      });
+    }
+
+    if (removeSubstitutesTeamB && removeSubstitutesTeamB.length > 0) {
+      existingMatch.substitutesTeamB = existingMatch.substitutesTeamB.filter(
+        (playerId) => !removeSubstitutesTeamB.includes(playerId.toString())
+      );
     }
 
     Object.assign(existingMatch, otherUpdatedData);
@@ -543,6 +654,22 @@ export const updateMatch = async (req, res) => {
       .populate("title", "name image")
       .populate("season", "seasonName")
       .populate("pitch", "name location image")
+      .populate(
+        "startersTeamA",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
+      .populate(
+        "substitutesTeamA",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
+      .populate(
+        "startersTeamB",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
+      .populate(
+        "substitutesTeamB",
+        "name image tShirtNumber idCard dateOfBirth motherName"
+      )
       .populate({
         path: "detailsWatcher",
         populate: {

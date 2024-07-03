@@ -492,8 +492,6 @@ export const createMatch = async (req, res) => {
     savedMatch.detailsWatcher = savedMatchDetails._id;
     await savedMatch.save();
 
-    // res.status(201).json(savedMatch);
-
     // Populate multiple fields
     const populatedMatch = await Match.findById(savedMatch._id)
       .populate({

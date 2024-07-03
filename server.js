@@ -11,6 +11,7 @@ import matchDetailsRoutes from "./Routes/MatchDetailsRoutes.js";
 import titleRoutes from "./Routes/TitleRoutes.js";
 import seasonRoutes from "./Routes/SeasonRoutes.js";
 import pitchRoutes from "./Routes/PitchRoutes.js";
+import administratorRoutes from "./Routes/AdministratorRoutes.js";
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ app.use("/matchdetails", matchDetailsRoutes);
 app.use("/title", titleRoutes);
 app.use("/season", seasonRoutes);
 app.use("/pitch", pitchRoutes);
+app.use("/administrator", administratorRoutes);
 
 app.listen(PORT, () => {
   connect();

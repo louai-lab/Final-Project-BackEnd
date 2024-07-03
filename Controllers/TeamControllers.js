@@ -11,6 +11,7 @@ export const getAllTeam = async (req, res) => {
         "players",
         "name team image tShirtNumber idCard dateOfBirth motherName"
       )
+      .populate("administrators", "name characteristic team image")
       .sort({ createdAt: -1 })
       .exec();
     res.status(201).json(teams);
@@ -30,6 +31,7 @@ export const getOneTeam = async (req, res) => {
         "players",
         "name team image tShirtNumber idCard dateOfBirth motherName"
       )
+      .populate("administrators", "name characteristic team image")
       .exec();
 
     if (team) {

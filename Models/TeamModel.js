@@ -17,6 +17,12 @@ const TeamSchema = new mongoose.Schema(
         ref: "Player",
       },
     ],
+    administrators: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Administrator",
+      },
+    ],
   },
   {
     timestamps: true,

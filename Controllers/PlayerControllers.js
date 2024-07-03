@@ -138,13 +138,13 @@ export const updatePlayer = async (req, res) => {
       existingPlayer.image = req.file.filename;
       // console.log(req.file.filename);
 
-      // fs.unlinkSync(oldImagePath, (err) => {
-      //   if (err) {
-      //     return res
-      //       .status(500)
-      //       .json({ error: `error deleting the old image` });
-      //   }
-      // });
+      fs.existsSync(oldImagePath, (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: `error deleting the old image` });
+        }
+      });
     }
 
     if (team !== undefined) {
@@ -195,8 +195,6 @@ export const updatePlayer = async (req, res) => {
     return res.status(200).json(updatedPlayer);
   } catch (error) {
     console.log(error);
-    const path = `public/images/${req.file.filename}`;
-    fs.unlinkSync(path);
     return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };
@@ -212,14 +210,16 @@ export const deletePlayer = async (req, res) => {
       return res.status(404).json({ error: "Player not found" });
     }
 
-    const imagePath = `public/images/${existingPlayer.image}`;
-    fs.unlinkSync(imagePath, (err) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ error: "Error deleting the user's image" });
-      }
-    });
+    if (existingPlayer.image) {
+      const imagePath = `public/images/${existingPlayer.image}`;
+      fs.unlinkSync(imagePath, (err) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ error: "Error deleting the player's image" });
+        }
+      });
+    }
 
     await Player.deleteOne({ _id: id });
 

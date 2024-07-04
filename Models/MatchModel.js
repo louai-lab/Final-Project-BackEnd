@@ -17,15 +17,21 @@ const MatchSchema = new mongoose.Schema(
     },
     team_a: {
       team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-      score: { type: Number, default: 0 },
-      scoreHT: { type: Number, default: 0 },
-      scorePenalties: { type: Number, default: 0 },
+      scoreWatcher: { type: Number, default: 0 },
+      scoreHTWatcher: { type: Number, default: 0 },
+      scorePenaltiesWatcher: { type: Number, default: 0 },
+      scoreReferee: { type: Number, default: 0 },
+      scoreHTReferee: { type: Number, default: 0 },
+      scorePenaltiesReferee: { type: Number, default: 0 },
     },
     team_b: {
       team: { type: mongoose.Schema.Types.ObjectId, ref: "Team" },
-      score: { type: Number, default: 0 },
-      scoreHT: { type: Number, default: 0 },
-      scorePenalties: { type: Number, default: 0 },
+      scoreWatcher: { type: Number, default: 0 },
+      scoreHTWatcher: { type: Number, default: 0 },
+      scorePenaltiesWatcher: { type: Number, default: 0 },
+      scoreReferee: { type: Number, default: 0 },
+      scoreHTReferee: { type: Number, default: 0 },
+      scorePenaltiesReferee: { type: Number, default: 0 },
     },
     startersTeamA: [
       {
@@ -39,6 +45,12 @@ const MatchSchema = new mongoose.Schema(
         ref: "Player",
       },
     ],
+    administratorsTeamA: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Administrator",
+      },
+    ],
     startersTeamB: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -49,6 +61,12 @@ const MatchSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Player",
+      },
+    ],
+    administratorsTeamB: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Administrator",
       },
     ],
     referee: {
@@ -79,6 +97,10 @@ const MatchSchema = new mongoose.Schema(
     },
 
     detailsWatcher: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MatchDetails",
+    },
+    detailsReferee: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MatchDetails",
     },

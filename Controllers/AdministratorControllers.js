@@ -20,7 +20,9 @@ export const getAllAdministrators = async (req, res) => {
       return res.status(404).json({ message: "No Administrators found" });
     }
 
-    res.status(200).json({ administrators, administratorsCount });
+    res.status(200).json(administrators);
+
+    // res.status(200).json({ administrators, administratorsCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

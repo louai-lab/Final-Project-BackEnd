@@ -104,11 +104,15 @@ const MatchSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "MatchDetails",
     },
-    played: {
+    playedWatcher: {
       type: Boolean,
       default: false,
     },
 
+    playedReferee: {
+      type: Boolean,
+      default: false,
+    },
     match_date: {
       type: Date,
       required: true,

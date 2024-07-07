@@ -530,99 +530,6 @@ export const getMatch = async (req, res) => {
 // and included in the match body to be able to use matchDetails Id
 // and use it in case of adding an object of details
 // inside the array of details
-// export const createMatch = async (req, res) => {
-//   try {
-//     const {
-//       title,
-//       season,
-//       pitch,
-//       team_a,
-//       team_b,
-//       referee,
-//       watcher,
-//       detailsWatcher,
-//       linesman_one,
-//       linesman_two,
-//       match_date,
-//       match_time,
-//       time_zone,
-//     } = req.body;
-
-//     const formattedMatchDate = moment
-//       .tz(match_date, "YYYY/MM/DD", time_zone)
-//       .format("YYYY-MM-DD");
-
-//     const formattedMatchTime = moment
-//       .tz(match_time, "h:mm A", time_zone)
-//       .format("HH:mm");
-
-//     // Create a new match
-//     const newMatch = new Match({
-//       title,
-//       season,
-//       pitch,
-//       team_a,
-//       team_b,
-//       referee,
-//       watcher,
-//       linesman_one,
-//       linesman_two,
-//       match_date: formattedMatchDate,
-//       match_time: formattedMatchTime,
-//     });
-
-//     const savedMatch = await newMatch.save();
-
-//     const newMatchDetails = new MatchDetails({
-//       detailsWatcher,
-//     });
-
-//     const savedMatchDetails = await newMatchDetails.save();
-
-//     savedMatch.detailsWatcher = savedMatchDetails._id;
-//     await savedMatch.save();
-
-//     // Populate multiple fields
-//     const populatedMatch = await Match.findById(savedMatch._id)
-//       .populate({
-//         path: "team_a.team",
-//         select: "name image",
-//         populate: {
-//           path: "players",
-//           select: "name image tShirtNumber idCard dateOfBirth motherName",
-//         },
-//       })
-//       .populate({
-//         path: "team_b.team",
-//         select: "name image",
-//         populate: {
-//           path: "players",
-//           select: "name image tShirtNumber idCard dateOfBirth motherName",
-//         },
-//       })
-//       .populate("referee", "firstName lastName role image")
-//       .populate("watcher", "firstName lastName role image")
-//       .populate("linesman_one", "firstName lastName role")
-//       .populate("linesman_two", "firstName lastName role")
-//       .populate("title", "name image")
-//       .populate("season", "seasonName")
-//       .populate("pitch", "name location image")
-//       .populate({
-//         path: "detailsWatcher",
-//         populate: {
-//           path: "details.team details.playerIn details.playerOut",
-//           select: "name image",
-//         },
-//       })
-//       .exec();
-
-//     res.status(201).json(populatedMatch);
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
-
 export const createMatch = async (req, res) => {
   try {
     const {
@@ -754,6 +661,8 @@ export const updateMatch = async (req, res) => {
       removeAdministratorsTeamB,
       ...otherUpdatedData
     } = req.body;
+
+    // console.log(otherUpdatedData);
 
     const existingMatch = await Match.findById(id);
     if (!existingMatch) {

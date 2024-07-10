@@ -39,6 +39,10 @@ const MatchDetailsSchema = new mongoose.Schema({
         type: String,
         enum: ["scored", "missed"],
       },
+      match:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Match",
+      }
     },
   ],
 });

@@ -160,6 +160,7 @@ export const login = async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
+
       const token = jwt.sign(
         {
           userId: user._id,
@@ -314,14 +315,7 @@ export const updateUser = async (req, res) => {
 // Update the user without checking old password
 export const updateUserNoCheck = async (req, res) => {
   const id = req.body.id;
-  const {
-    firstName,
-    lastName,
-    role,
-    email,
-    newPassword,
-    password,
-  } = req.body;
+  const { firstName, lastName, role, email, newPassword, password } = req.body;
 
   try {
     const existingUser = await User.findById(id);
@@ -364,10 +358,6 @@ export const updateUserNoCheck = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };
-
-
-
-
 
 // Delete an user
 export const deleteUser = async (req, res) => {

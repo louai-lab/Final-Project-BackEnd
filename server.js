@@ -13,6 +13,12 @@ import seasonRoutes from "./Routes/SeasonRoutes.js";
 import pitchRoutes from "./Routes/PitchRoutes.js";
 import administratorRoutes from "./Routes/AdministratorRoutes.js";
 
+///
+import { Server } from "socket.io";
+import http from "http";
+import User from "./Models/UserModel.js";
+///
+
 dotenv.config();
 
 const PORT = process.env.PORT || 6666;
@@ -45,7 +51,29 @@ app.use("/season", seasonRoutes);
 app.use("/pitch", pitchRoutes);
 app.use("/administrator", administratorRoutes);
 
-app.listen(PORT, () => {
+//// socket io ////
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: [
+      process.env.FRONT_END_PATH,
+      "https://final-project-frontend-9c1k.vercel.app",
+    ],
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`User Connected: ${socket.id}`);
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
+//////////////////
+
+server.listen(PORT, () => {
   connect();
   console.log(`Server is running on port: ${PORT}`);
   if (PORT === 6666) {
@@ -54,3 +82,5 @@ app.listen(PORT, () => {
     );
   }
 });
+
+export { io };

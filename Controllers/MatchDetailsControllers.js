@@ -2,6 +2,9 @@ import express from "express";
 import MatchDetails from "../Models/MatchDetailsModel.js";
 import Match from "../Models/MatchModel.js";
 
+import { io } from "../server.js";
+import User from "../Models/UserModel.js";
+
 // get all matcheDetails
 export const getAllMatchDetails = async (req, res) => {
   try {
@@ -42,7 +45,75 @@ export const createMatchDetails = async (req, res) => {
 // update a matchDetails , && add an object (new detail in the details array) ,
 // it is just pass the MatchDetails Id , and in the body the detail (goal , ...)
 // to add an object to array of details
-export const updateMatchDetails = async (req, res) => {
+
+// updateMatchDetailsWatcher and updateMatchDetailsReferee are same , but i did diferieate them for handling socketio just for object watcher
+export const updateMatchDetailsWatcher = async (req, res) => {
+  const id = req.params.id;
+
+  const { type, team, minute, playerIn, playerOut, penalty, match } = req.body;
+
+  try {
+    let newDetailsObject = { type, minute };
+
+    if (penalty) {
+      newDetailsObject.penalty = penalty;
+    }
+
+    if (team) {
+      newDetailsObject.team = team;
+    }
+    if (playerIn) {
+      newDetailsObject.playerIn = playerIn;
+    }
+    if (type === "substitution" && playerOut) {
+      newDetailsObject.playerOut = playerOut;
+    }
+
+    if (match) {
+      newDetailsObject.match = match;
+    }
+
+    // console.log(newDetailsObject)
+
+    const updatedMatchDetails = await MatchDetails.findOneAndUpdate(
+      { _id: id },
+      { $push: { details: newDetailsObject } },
+      { new: true }
+    )
+      .populate("details.team", "name")
+      .populate("details.playerIn details.playerOut", "name image")
+      .exec();
+
+    if (type === "goal") {
+      const populatedDetailsObject = await MatchDetails.findOne({ _id: id })
+        .select({ details: { $slice: -1 } }) // Get the last inserted details
+        .populate("details.team", "name")
+        .populate("details.playerIn details.playerOut", "name image")
+        .exec();
+
+      const goalDetails = populatedDetailsObject.details[0];
+
+      // const adminUser = await User.findOne({ role: "admin" }).exec();
+
+      // if (adminUser) {
+      //   console.log("socket id of admin", adminUser.socketId);
+      //   io.to(adminUser.socketId).emit("newMatchDetail", goalDetails);
+      // }
+
+      io.emit("newMatchDetail", goalDetails);
+    }
+
+    return res.status(200).json(updatedMatchDetails);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send(error);
+  }
+};
+
+// update a matchDetails , && add an object (new detail in the details array) ,
+// it is just pass the MatchDetails Id , and in the body the detail (goal , ...)
+// to add an object to array of details
+export const updateMatchDetailsReferee = async (req, res) => {
   const id = req.params.id;
 
   const { type, team, minute, playerIn, playerOut, penalty } = req.body;
@@ -72,6 +143,10 @@ export const updateMatchDetails = async (req, res) => {
       .populate("details.team", "name")
       .populate("details.playerIn details.playerOut", "name image")
       .exec();
+
+    // if (type === "goal") {
+    //   io.emit("newMatchDetail", { message: "hello goal" });
+    // }
 
     return res.status(200).json(updatedMatchDetails);
   } catch (error) {

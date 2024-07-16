@@ -18,6 +18,8 @@ export const getAllPlayers = async (req, res) => {
       query.name = { $regex: new RegExp(playerName, "i") };
     }
 
+    const totalPlayersCount = await Player.countDocuments({});
+
     let players = await Player.find(query)
       .populate("team", "name image")
       .sort({ createdAt: -1 })
@@ -33,7 +35,7 @@ export const getAllPlayers = async (req, res) => {
       return res.status(404).json({ message: "No Players found" });
     }
 
-    res.status(200).json({ players, playersCount });
+    res.status(200).json({ players, playersCount , totalPlayersCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

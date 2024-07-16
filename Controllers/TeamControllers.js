@@ -14,7 +14,20 @@ export const getAllTeam = async (req, res) => {
       .populate("administrators", "name characteristic team image")
       .sort({ createdAt: -1 })
       .exec();
-    res.status(201).json(teams);
+
+    // console.log(teams[1].players.length);
+
+    // Add player count for each team
+    const teamsWithPlayerCount = teams.map((team) => {
+      const playerCount = team.players.length;
+      return {
+        ...team._doc,
+        playerCount,
+      };
+    });
+
+    const teamCount = teams.length;
+    res.status(201).json({ teams: teamsWithPlayerCount, teamCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

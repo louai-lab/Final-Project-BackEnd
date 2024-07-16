@@ -188,6 +188,8 @@ export const getAllMatches = async (req, res) => {
       });
     }
 
+    // const totalMatchsCount = Match.countDocuments({});
+
     const matchCount = matches.length;
 
     const { offset, limit } = req;

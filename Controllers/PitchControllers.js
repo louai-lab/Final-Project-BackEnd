@@ -6,7 +6,9 @@ export const getAllPitches = async (req, res) => {
   try {
     const pitches = await Pitch.find().sort({ createdAt: -1 });
 
-    res.status(201).json(pitches);
+    const pitchCount = pitches.length;
+
+    res.status(201).json({ pitches, pitchCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

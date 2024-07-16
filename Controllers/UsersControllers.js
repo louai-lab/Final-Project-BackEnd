@@ -12,7 +12,9 @@ dotenv.config();
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
-    res.status(201).json(users);
+
+    let userCount = users.length;
+    res.status(201).json({ users, userCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -160,7 +162,6 @@ export const login = async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-
       const token = jwt.sign(
         {
           userId: user._id,

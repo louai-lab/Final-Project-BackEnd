@@ -6,7 +6,9 @@ export const getAllTitles = async (req, res) => {
   try {
     const titles = await Title.find().sort({ createdAt: -1 }).exec();
 
-    res.status(201).json(titles);
+    const titleCount = titles.length;
+
+    res.status(201).json({ titles, titleCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });

@@ -12,6 +12,7 @@ import titleRoutes from "./Routes/TitleRoutes.js";
 import seasonRoutes from "./Routes/SeasonRoutes.js";
 import pitchRoutes from "./Routes/PitchRoutes.js";
 import administratorRoutes from "./Routes/AdministratorRoutes.js";
+import aboutUsRoutes from "./Routes/AboutUsRoutes.js";
 
 ///
 import { Server } from "socket.io";
@@ -50,6 +51,7 @@ app.use("/title", titleRoutes);
 app.use("/season", seasonRoutes);
 app.use("/pitch", pitchRoutes);
 app.use("/administrator", administratorRoutes);
+app.use("/aboutus", aboutUsRoutes);
 
 //// socket io ////
 const server = http.createServer(app);

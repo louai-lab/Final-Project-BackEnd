@@ -121,18 +121,6 @@ const MatchSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // isFullTime: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-    // isFirstExtraTime: {
-    //   type: Boolean,
-    //   default: false,
-    // },
-    // isSecondExtraTime: {
-    //   type: Boolean,
-    //   default: false,
-    // },
     isPenalties: {
       type: Boolean,
       default: false,

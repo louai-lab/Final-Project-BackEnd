@@ -5,12 +5,13 @@ import {
   updateSeason,
   deleteSeason,
 } from "../Controllers/SeasonControllers.js";
+import { ByAdmin } from "../middleware/ByAdmin.js";
 
 const seasonRoutes = express.Router();
 
-seasonRoutes.get("/", getAllSeasons);
-seasonRoutes.post("/add", createSeason);
-seasonRoutes.patch("/update/:id", updateSeason);
-seasonRoutes.delete("/delete/:id", deleteSeason);
+seasonRoutes.get("/", ByAdmin, getAllSeasons);
+seasonRoutes.post("/add", ByAdmin, createSeason);
+seasonRoutes.patch("/update/:id", ByAdmin, updateSeason);
+seasonRoutes.delete("/delete/:id", ByAdmin, deleteSeason);
 
 export default seasonRoutes;

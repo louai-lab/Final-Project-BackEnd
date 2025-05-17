@@ -6,12 +6,14 @@ import User from "../Models/UserModel.js";
 export const auth = async (req, res, next) => {
   const token = req.cookies.access_token;
 
+  // console.log("Token:", token);
+
   // if (!token) {
   //   return res.status(401).json({ error: "Unauthorized - Missing token" });
   // }
 
   if (!token) {
-    // console.log("Missing token");
+    console.log("Missing token");
     return next();
   }
 

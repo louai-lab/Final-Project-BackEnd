@@ -1,9 +1,6 @@
-import express from "express";
 import MatchDetails from "../Models/MatchDetailsModel.js";
-import Match from "../Models/MatchModel.js";
 
 import { io } from "../server.js";
-import User from "../Models/UserModel.js";
 
 // get all matcheDetails
 export const getAllMatchDetails = async (req, res) => {

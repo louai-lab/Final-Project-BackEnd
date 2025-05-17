@@ -6,12 +6,13 @@ import {
   updateTitle,
   deleteTitle,
 } from "../Controllers/TitleControllers.js";
+import { ByAdmin } from "../middleware/ByAdmin.js";
 
 const titleRoutes = express.Router();
 
-titleRoutes.get("/", getAllTitles);
-titleRoutes.post("/add", upload.single("image"), addTitle);
-titleRoutes.patch("/update/:id", upload.single("image"), updateTitle);
-titleRoutes.delete("/delete/:id", upload.single("image"), deleteTitle);
+titleRoutes.get("/", ByAdmin, getAllTitles);
+titleRoutes.post("/add", ByAdmin, upload.single("image"), addTitle);
+titleRoutes.patch("/update/:id", ByAdmin, upload.single("image"), updateTitle);
+titleRoutes.delete("/delete/:id", ByAdmin, upload.single("image"), deleteTitle);
 
 export default titleRoutes;

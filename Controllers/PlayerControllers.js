@@ -35,7 +35,7 @@ export const getAllPlayers = async (req, res) => {
       return res.status(404).json({ message: "No Players found" });
     }
 
-    res.status(200).json({ players, playersCount , totalPlayersCount });
+    res.status(200).json({ players, playersCount, totalPlayersCount });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -116,8 +116,14 @@ export const addPlayer = async (req, res) => {
 export const updatePlayer = async (req, res) => {
   const id = req.params.id;
 
-  const { name, tShirtNumber, team, idCard, dateOfBirth, motherName } =
-    req.body;
+  const {
+    name,
+    tShirtNumber,
+    team = null,
+    idCard,
+    dateOfBirth,
+    motherName,
+  } = req.body;
 
   try {
     const existingPlayer = await Player.findById(id);

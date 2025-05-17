@@ -7,14 +7,36 @@ import {
   deleteObject,
   updateObject,
 } from "../Controllers/MatchDetailsControllers.js";
+import { Authorized } from "../middleware/Authorized.js";
+import { ByReferee } from "../middleware/ByReferee.js";
+import { ByWatcher } from "../middleware/ByWatcher.js";
+import { ByAdmin } from "../middleware/ByAdmin.js";
 
 const matchDetailsRoutes = express.Router();
 
-matchDetailsRoutes.post("/", createMatchDetails);
-matchDetailsRoutes.get("/", getAllMatchDetails);
-matchDetailsRoutes.patch("/addObjectWatcher/:id", updateMatchDetailsWatcher);
-matchDetailsRoutes.patch("/addObjectReferee/:id", updateMatchDetailsReferee);
-matchDetailsRoutes.patch("/deleteObject/:matchDetailsId/:id", deleteObject);
-matchDetailsRoutes.patch("/updateObject/:matchDetailsId/:id", updateObject);
+matchDetailsRoutes.post("/", ByAdmin, Authorized, createMatchDetails);
+matchDetailsRoutes.get("/", Authorized, getAllMatchDetails);
+matchDetailsRoutes.patch(
+  "/addObjectWatcher/:id",
+  Authorized,
+  ByWatcher,
+  updateMatchDetailsWatcher
+);
+matchDetailsRoutes.patch(
+  "/addObjectReferee/:id",
+  Authorized,
+  ByReferee,
+  updateMatchDetailsReferee
+);
+matchDetailsRoutes.patch(
+  "/deleteObject/:matchDetailsId/:id",
+  Authorized,
+  deleteObject
+);
+matchDetailsRoutes.patch(
+  "/updateObject/:matchDetailsId/:id",
+  Authorized,
+  updateObject
+);
 
 export default matchDetailsRoutes;

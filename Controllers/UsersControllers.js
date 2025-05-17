@@ -271,9 +271,16 @@ export const updateUser = async (req, res) => {
     password,
   } = req.body;
 
+  const userId = req.user;
+
   try {
     const existingUser = await User.findById(id);
 
+    if (existingUser._id.toString() !== userId.userId.toString()) {
+      return res
+        .status(403)
+        .json({ error: "You are not authorized to update this user" });
+    }
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }

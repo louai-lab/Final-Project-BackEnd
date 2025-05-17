@@ -17,7 +17,6 @@ import aboutUsRoutes from "./Routes/AboutUsRoutes.js";
 ///
 import { Server } from "socket.io";
 import http from "http";
-import User from "./Models/UserModel.js";
 ///
 
 dotenv.config();
@@ -25,6 +24,7 @@ dotenv.config();
 const PORT = process.env.PORT || 6666;
 const app = express();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const corsOption = {
   // origin: process.env.FRONT_END_PATH,

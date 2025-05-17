@@ -543,7 +543,7 @@ export const createMatch = async (req, res) => {
       referee,
       watcher,
       detailsWatcher,
-      detailsReferee, // Extract detailsReferee from req.body
+      detailsReferee,
       linesman_one,
       linesman_two,
       match_date,

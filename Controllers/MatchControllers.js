@@ -2,6 +2,7 @@ import moment from "moment-timezone";
 import Match from "../Models/MatchModel.js";
 import MatchDetails from "../Models/MatchDetailsModel.js";
 import mongoose from "mongoose";
+import User from "../Models/UserModel.js";
 
 // Get All Matches
 export const getAllMatches = async (req, res) => {
@@ -551,6 +552,52 @@ export const createMatch = async (req, res) => {
       time_zone,
     } = req.body;
 
+    // console.log(req.body);
+
+    if (team_a.team === team_b.team) {
+      return res.status(400).json({ message: "Teams must be different" });
+    }
+
+    if (referee) {
+      const isReferee = await User.findById(referee);
+      // console.log(isReferee);
+      if (isReferee.role !== "referee") {
+        return res
+          .status(404)
+          .json({ message: "Referee must have referee role" });
+      }
+    }
+
+    if (watcher) {
+      const isWatcher = await User.findById(watcher);
+      // console.log(isWatcher);
+      if (isWatcher.role !== "watcher") {
+        return res
+          .status(404)
+          .json({ message: "Watcher must have watcher role" });
+      }
+    }
+
+    if (linesman_one) {
+      const isLinesman = await User.findById(linesman_one);
+      // console.log(isLinesman);
+      if (isLinesman.role !== "linesman") {
+        return res
+          .status(404)
+          .json({ message: "Linesman must have watcher role" });
+      }
+    }
+
+    if (linesman_two) {
+      const isLinesman = await User.findById(linesman_two);
+      // console.log(isLinesman);
+      if (isLinesman.role !== "linesman") {
+        return res
+          .status(404)
+          .json({ message: "Linesman must have watcher role" });
+      }
+    }
+
     const formattedMatchDate = moment
       .tz(match_date, "YYYY/MM/DD", time_zone)
       .format("YYYY-MM-DD");
@@ -664,7 +711,9 @@ export const updateMatch = async (req, res) => {
       ...otherUpdatedData
     } = req.body;
 
-    // console.log(otherUpdatedData);
+    // console.log("body", req.body);
+
+    // console.log("others", otherUpdatedData);
 
     const existingMatch = await Match.findById(id);
     if (!existingMatch) {
@@ -677,6 +726,50 @@ export const updateMatch = async (req, res) => {
 
     if (match_time) {
       existingMatch.match_time = match_time;
+    }
+
+    if (otherUpdatedData.team_a.team === otherUpdatedData.team_b.team) {
+      return res.status(400).json({ message: "Teams must be different" });
+    }
+
+    if (otherUpdatedData.referee) {
+      const isReferee = await User.findById(otherUpdatedData.referee);
+      // console.log(isReferee);
+      if (isReferee.role !== "referee") {
+        return res
+          .status(404)
+          .json({ message: "Referee must have referee role" });
+      }
+    }
+
+    if (otherUpdatedData.watcher) {
+      const isWatcher = await User.findById(otherUpdatedData.watcher);
+      // console.log(isWatcher);
+      if (isWatcher.role !== "watcher") {
+        return res
+          .status(404)
+          .json({ message: "Watcher must have watcher role" });
+      }
+    }
+
+    if (otherUpdatedData.linesman_one) {
+      const isLinesman = await User.findById(otherUpdatedData.linesman_one);
+      // console.log(isLinesman);
+      if (isLinesman.role !== "linesman") {
+        return res
+          .status(404)
+          .json({ message: "Linesman must have watcher role" });
+      }
+    }
+
+    if (otherUpdatedData.linesman_two) {
+      const isLinesman = await User.findById(otherUpdatedData.linesman_two);
+      // console.log(isLinesman);
+      if (isLinesman.role !== "linesman") {
+        return res
+          .status(404)
+          .json({ message: "Linesman must have watcher role" });
+      }
     }
 
     if (addStartersTeamA && addStartersTeamA.length > 0) {
@@ -841,16 +934,27 @@ export const updateMatch = async (req, res) => {
 // Delete a Match
 export const deleteMatch = async (req, res) => {
   const id = req.params.id;
-  try {
-    const existingMatch = await Match.findById(id);
 
-    if (!existingMatch) {
+  try {
+    const deletedMatch = await Match.findByIdAndDelete(id);
+
+    if (!deletedMatch) {
       return res.status(404).json({ message: "Match not found" });
     }
 
-    await Match.findByIdAndDelete(id);
+    console.log("Deleted Match:", deletedMatch);
 
-    return res.status(200).json("Match deleted successfuly");
+    if (deletedMatch.detailsWatcher) {
+      await MatchDetails.findByIdAndDelete(deletedMatch.detailsWatcher);
+    }
+
+    if (deletedMatch.detailsReferee) {
+      await MatchDetails.findByIdAndDelete(deletedMatch.detailsReferee);
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Match and related details deleted successfully" });
   } catch (error) {
     console.log(error);
     return res.status(500).send("Internal Server Error");

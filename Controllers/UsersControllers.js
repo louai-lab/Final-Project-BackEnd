@@ -276,7 +276,7 @@ export const updateUser = async (req, res) => {
   try {
     const existingUser = await User.findById(id);
 
-    if (existingUser._id.toString() !== userId.userId.toString()) {
+    if (existingUser._id.toString() !== userId._id.toString()) {
       return res
         .status(403)
         .json({ error: "You are not authorized to update this user" });
@@ -324,8 +324,8 @@ export const updateUser = async (req, res) => {
     return res.status(200).json(existingUser);
   } catch (error) {
     console.error(error);
-    const imagePath = `public/images/${req.file.filename}`;
-    fs.unlinkSync(imagePath);
+    // const imagePath = `public/images/${req.file.filename}`;
+    // fs.unlinkSync(imagePath);
     return res.status(500).json({ error: "Internal Server Error", msg: error });
   }
 };

@@ -14,17 +14,15 @@ import { ByAdmin } from "../middleware/ByAdmin.js";
 
 const matchDetailsRoutes = express.Router();
 
-matchDetailsRoutes.post("/", ByAdmin, Authorized, createMatchDetails);
-matchDetailsRoutes.get("/", Authorized, getAllMatchDetails);
+matchDetailsRoutes.post("/", ByAdmin, createMatchDetails);
+matchDetailsRoutes.get("/", getAllMatchDetails);
 matchDetailsRoutes.patch(
-  "/addObjectWatcher/:id",
-  Authorized,
+  "/addObjectWatcher/:id/:userId/:matchId",
   ByWatcher,
   updateMatchDetailsWatcher
 );
 matchDetailsRoutes.patch(
-  "/addObjectReferee/:id",
-  Authorized,
+  "/addObjectReferee/:id/:userId/:matchId",
   ByReferee,
   updateMatchDetailsReferee
 );

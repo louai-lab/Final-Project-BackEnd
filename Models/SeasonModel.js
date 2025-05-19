@@ -2,11 +2,19 @@ import mongoose from "mongoose";
 
 const SeasonSchema = new mongoose.Schema(
   {
-    seasonName: {
-      type: String,
+    // seasonName: {
+    //   type: String,
+    //   // required: true,
+    //   unique: true,
+    //   // match: /^\d{4}\/\d{4}$/,
+    // },
+    firstPart: {
+      type: Number,
       required: true,
-      unique: true,
-      match: /^\d{4}\/\d{4}$/,
+    },
+    secondPart: {
+      type: Number,
+      required: true,
     },
   },
   {

@@ -1,4 +1,5 @@
 import MatchDetails from "../Models/MatchDetailsModel.js";
+import Match from "../Models/MatchModel.js";
 
 import { io } from "../server.js";
 
@@ -46,8 +47,18 @@ export const createMatchDetails = async (req, res) => {
 // updateMatchDetailsWatcher and updateMatchDetailsReferee are same , but i did diferieate them for handling socketio just for object watcher
 export const updateMatchDetailsWatcher = async (req, res) => {
   const id = req.params.id;
+  const userId = req.params.userId;
+  const matchId = req.params.matchId;
 
   const { type, team, minute, playerIn, playerOut, penalty, match } = req.body;
+
+  const dataMatch = await Match.findById(matchId);
+
+  if (userId !== dataMatch.watcher.toString()) {
+    return res.status(403).json({
+      message: "You are not authorized to update this match details.",
+    });
+  }
 
   try {
     let newDetailsObject = { type, minute };
@@ -112,8 +123,18 @@ export const updateMatchDetailsWatcher = async (req, res) => {
 // to add an object to array of details
 export const updateMatchDetailsReferee = async (req, res) => {
   const id = req.params.id;
+  const userId = req.params.userId;
+  const matchId = req.params.matchId;
 
   const { type, team, minute, playerIn, playerOut, penalty } = req.body;
+
+  const dataMatch = await Match.findById(matchId);
+
+  if (userId !== dataMatch.referee.toString()) {
+    return res.status(403).json({
+      message: "You are not authorized to update this match details.",
+    });
+  }
 
   try {
     let newDetailsObject = { type, minute };

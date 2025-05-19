@@ -79,6 +79,18 @@ export const addTeam = async (req, res) => {
         _id: { $in: ids.map((id) => new ObjectId(id)) },
       });
 
+      const hasTeam = players.some((player) => player.team);
+
+      if (hasTeam) {
+        const path = `public/images/${req.file.filename}`;
+        fs.unlinkSync(path);
+        return res
+          .status(400)
+          .json({ message: "One or more players already belong to a team." });
+      }
+
+      // Continue with your logic here...
+
       if (players.length !== playersIds.length) {
         const path = `public/images/${req.file.filename}`;
         fs.unlinkSync(path);

@@ -15,18 +15,20 @@ export const getAllSeasons = async (req, res) => {
 // Create Season
 export const createSeason = async (req, res) => {
   try {
-    const { seasonName } = req.body;
+    const { firstPart, secondPart } = req.body;
 
-    const regex = /^\d{4}\/\d{4}$/;
-    if (!regex.test(seasonName)) {
-      return res.status(400).json({
-        error:
-          "Invalid seasonName format. It should be in the format YYYY/YYYY.",
-      });
-    }
+    // const regex = /^\d{4}\/\d{4}$/;
+    // if (!regex.test(seasonName)) {
+    //   return res.status(400).json({
+    //     error:
+    //       "Invalid seasonName format. It should be in the format YYYY/YYYY.",
+    //   });
+    // }
 
     const newSeason = await Season.create({
-      seasonName,
+      // seasonName,
+      firstPart,
+      secondPart,
     });
 
     res.status(201).json(newSeason);
@@ -40,18 +42,16 @@ export const createSeason = async (req, res) => {
 export const updateSeason = async (req, res) => {
   const id = req.params.id;
 
-  const { seasonName } = req.body;
+  const { firstPart, secondPart } = req.body;
 
-  const seasonNamePattern = /^\d{4}\/\d{4}$/;
+  // const seasonNamePattern = /^\d{4}\/\d{4}$/;
 
   try {
-    if (seasonName && !seasonNamePattern.test(seasonName)) {
-      return res
-        .status(400)
-        .json({
-          error: "Invalid seasonName format. Expected format is YYYY/YYYY.",
-        });
-    }
+    // if (seasonName && !seasonNamePattern.test(seasonName)) {
+    //   return res.status(400).json({
+    //     error: "Invalid seasonName format. Expected format is YYYY/YYYY.",
+    //   });
+    // }
 
     const existingSeason = await Season.findById(id);
 
@@ -59,7 +59,10 @@ export const updateSeason = async (req, res) => {
       return res.status(404).json({ error: "Season not found" });
     }
 
-    if (seasonName) existingSeason.seasonName = seasonName;
+    // if (seasonName) existingSeason.seasonName = seasonName;
+
+    if (firstPart) existingSeason.firstPart = firstPart;
+    if (secondPart) existingSeason.secondPart = secondPart;
 
     await existingSeason.save();
     return res.status(200).json(existingSeason);
